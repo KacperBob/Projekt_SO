@@ -1,81 +1,11 @@
-[00:07:19] Kasjer obsłużył grupę 2 osób:
-  - Osoba 1: wiek 97, PID 2107804
-  - Osoba 2: wiek 18, PID 2107804
-[00:07:20] Kasjer obsłużył grupę 1 osób:
-  - Osoba 1: wiek 64, PID 2107806
-[00:07:21] Kasjer obsłużył grupę 2 osób:
-  - Osoba 1: wiek 42, PID 2107808
-  - Osoba 2: wiek 67, PID 2107808
-[00:07:24] Kasjer obsłużył grupę 1 osób:
-  - Osoba 1: wiek 87, PID 2107810
-[00:07:28] Kasjer obsłużył grupę 4 osób:
-  - Osoba 1: wiek 8, PID 2107812
-  - Osoba 2: wiek 86, PID 2107812
-  - Osoba 3: wiek 10, PID 2107812
-  - Osoba 4: wiek 9, PID 2107812
-[00:07:33] Kasjer obsłużył grupę 4 osób:
-  - Osoba 1: wiek 84, PID 2107815
-  - Osoba 2: wiek 75, PID 2107815
-  - Osoba 3: wiek 10, PID 2107815
-  - Osoba 4: wiek 45, PID 2107815
-[00:07:36] Kasjer obsłużył grupę 3 osób:
-  - Osoba 1: wiek 35, PID 2107817
-  - Osoba 2: wiek 43, PID 2107817
-  - Osoba 3: wiek 86, PID 2107817
-[00:07:41] Kasjer obsłużył grupę 4 osób:
-  - Osoba 1: wiek 52, PID 2107822
-  - Osoba 2: wiek 42, PID 2107822
-  - Osoba 3: wiek 95, PID 2107822
-  - Osoba 4: wiek 79, PID 2107822
-[00:07:42] Kasjer obsłużył grupę 1 osób:
-  - Osoba 1: wiek 24, PID 2107825
-[00:07:45] Kasjer obsłużył grupę 1 osób:
-  - Osoba 1: wiek 56, PID 2107828
-[00:07:46] Kasjer obsłużył grupę 4 osób:
-  - Osoba 1: wiek 71, PID 2107830
-  - Osoba 2: wiek 13, PID 2107830
-  - Osoba 3: wiek 28, PID 2107830
-  - Osoba 4: wiek 83, PID 2107830
-[00:07:48] Kasjer obsłużył grupę 1 osób:
-  - Osoba 1: wiek 43, PID 2107832
-[00:07:53] Kasjer obsłużył grupę 2 osób:
-  - Osoba 1: wiek 43, PID 2107835
-  - Osoba 2: wiek 98, PID 2107835
-[00:07:56] Kasjer obsłużył grupę 3 osób:
-  - Osoba 1: wiek 93, PID 2107837
-  - Osoba 2: wiek 89, PID 2107837
-  - Osoba 3: wiek 44, PID 2107837
-[00:07:59] Kasjer obsłużył grupę 1 osób:
-  - Osoba 1: wiek 43, PID 2107841
-[00:08:04] Kasjer obsłużył grupę 6 osób:
-  - Osoba 1: wiek 85, PID 2107843
-  - Osoba 2: wiek 35, PID 2107843
-  - Osoba 3: wiek 98, PID 2107843
-  - Osoba 4: wiek 55, PID 2107843
-  - Osoba 5: wiek 9, PID 2107843
-  - Osoba 6: wiek 34, PID 2107843
-[00:08:06] Kasjer obsłużył grupę 4 osób:
-  - Osoba 1: wiek 2, PID 2107845
-  - Osoba 2: wiek 88, PID 2107845
-  - Osoba 3: wiek 48, PID 2107845
-  - Osoba 4: wiek 84, PID 2107845
-[00:08:11] Kasjer obsłużył grupę 2 osób:
-  - Osoba 1: wiek 81, PID 2107848
-  - Osoba 2: wiek 77, PID 2107848
-[00:08:15] Kasjer obsłużył grupę 2 osób:
-  - Osoba 1: wiek 46, PID 2107850
-  - Osoba 2: wiek 100, PID 2107850
-[00:08:18] Kasjer obsłużył grupę 1 osób:
-  - Osoba 1: wiek 51, PID 2107852
-[00:08:23] Kasjer obsłużył grupę 1 osób:
-  - Osoba 1: wiek 3, PID 2107855
-[00:08:24] Kasjer obsłużył grupę 3 osób:
-  - Osoba 1: wiek 3, PID 2107857
-  - Osoba 2: wiek 75, PID 2107857
-  - Osoba 3: wiek 23, PID 2107857
-[00:08:25] Kasjer obsłużył grupę 1 osób:
-  - Osoba 1: wiek 48, PID 2107859
-[00:08:30] Kasjer obsłużył grupę 1 osób:
-  - Osoba 1: wiek 96, PID 2107864
-[00:08:31] Kasjer obsłużył grupę 1 osób:
-  - Osoba 1: wiek 41, PID 2107866
+[02:27:48] Kasjer obsłużył grupę 3 osób:
+  - Osoba 1: wiek 39, PID 2350117
+  - Osoba 2: wiek 26, PID 2350117
+  - Osoba 3: wiek 81, PID 2350117
+[02:27:51] Kasjer obsłużył grupę 2 osób:
+  - Osoba 1: wiek 68, PID 2350124
+  - Osoba 2: wiek 70, PID 2350124
+[02:27:56] Kasjer obsłużył grupę 1 osób:
+  - Osoba 1: wiek 66, PID 2350132
+[02:27:59] Kasjer obsłużył grupę 1 osób:
+  - Osoba 1: wiek 66, PID 2350135

@@ -1,66 +1,91 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
 #include <unistd.h>
 #include <sys/ipc.h>
+#include <sys/shm.h>
 #include <sys/msg.h>
-#include <sys/types.h>
+#include <signal.h>
+#include <string.h>
 
+#define SHM_KEY 5678
 #define MSG_KEY 1234
-#define MAX_GRUPA 12
 
-struct osoba {
-    int wiek;
-    pid_t pid;
-};
-
-struct grupa {
+struct msgbuf {
     long mtype;
-    int rozmiar;
-    struct osoba osoby[MAX_GRUPA];
+    char mtext[100];
 };
 
-void raportuj_grupa(int rozmiar, struct osoba osoby[]) {
-    time_t teraz = time(NULL);
-    struct tm *czas_info = localtime(&teraz);
-    char czas_str[20];
-    strftime(czas_str, sizeof(czas_str), "%H:%M:%S", czas_info);
+int msqid = -1; // Kolejka komunikatów
+int shmid = -1; // Segment pamięci współdzielonej
+char *czas = NULL; // Wskaźnik do pamięci współdzielonej
 
-    FILE *plik = fopen("raport_kasjera.txt", "a");
-    if (plik == NULL) {
-        perror("Nie można otworzyć pliku raportu");
-        exit(1);
+// Funkcja czyszcząca zasoby
+void cleanup(int signum) {
+    printf("\nZwalnianie zasobów...\n");
+
+    // Odłącz pamięć współdzieloną
+    if (czas != NULL) {
+        if (shmdt(czas) == -1) {
+            perror("Nie można odłączyć pamięci współdzielonej");
+        }
     }
 
-    fprintf(plik, "[%s] Kasjer obsłużył grupę %d osób:\n", czas_str, rozmiar);
-    for (int i = 0; i < rozmiar; i++) {
-        fprintf(plik, "  - Osoba %d: wiek %d, PID %d\n", i + 1, osoby[i].wiek, osoby[i].pid);
-    }
-    fclose(plik);
+    // Nie usuwaj kolejki komunikatów – tylko proces nadrzędny powinien to robić
+    exit(0);
+}
 
-    printf("[%s] Kasjer obsłużył grupę %d osób:\n", czas_str, rozmiar);
-    for (int i = 0; i < rozmiar; i++) {
-        printf("  - Osoba %d: wiek %d, PID %d\n", i + 1, osoby[i].wiek, osoby[i].pid);
+// Funkcja do pobierania czasu symulowanego
+void get_simulated_time(char *buffer) {
+    shmid = shmget(SHM_KEY, sizeof(char) * 20, 0666);
+    if (shmid == -1) {
+        perror("Nie można połączyć się z pamięcią współdzieloną");
+        cleanup(0);
     }
+
+    czas = shmat(shmid, NULL, 0);
+    if (czas == (char *)-1) {
+        perror("Nie można przyłączyć pamięci współdzielonej");
+        cleanup(0);
+    }
+
+    snprintf(buffer, 20, "%s", czas);
+
+    if (shmdt(czas) == -1) {
+        perror("Nie można odłączyć pamięci współdzielonej po odczycie");
+    }
+    czas = NULL;
 }
 
 int main() {
-    int msgid = msgget(MSG_KEY, IPC_CREAT | 0666);
-    if (msgid == -1) {
+    // Rejestrowanie obsługi sygnałów
+    signal(SIGINT, cleanup);
+    signal(SIGTERM, cleanup);
+
+    // Tworzenie kolejki komunikatów
+    msqid = msgget(MSG_KEY, IPC_CREAT | 0666);
+    if (msqid == -1) {
         perror("Nie można utworzyć kolejki komunikatów");
         exit(1);
     }
 
-    struct grupa grupa_msg;
+    struct msgbuf msg;
+    char simulated_time[20];
+
     while (1) {
-        if (msgrcv(msgid, &grupa_msg, sizeof(grupa_msg) - sizeof(long), 1, 0) == -1) {
-            perror("Błąd odbierania wiadomości");
+        // Odbieranie wiadomości z kolejki komunikatów
+        if (msgrcv(msqid, &msg, sizeof(msg.mtext), 1, 0) == -1) {
+            perror("Błąd podczas odbioru wiadomości");
+            sleep(1); // Poczekaj przed ponowną próbą, aby nie przeciążać systemu
             continue;
         }
 
-        raportuj_grupa(grupa_msg.rozmiar, grupa_msg.osoby);
+        // Pobieranie czasu symulowanego
+        get_simulated_time(simulated_time);
+
+        // Wyświetlanie komunikatu o obsłudze klienta
+        printf("[%s] Kasjer obsłużył: %s\n", simulated_time, msg.mtext);
     }
 
+    cleanup(0); // Dodatkowe czyszczenie przy zakończeniu
     return 0;
 }
-
