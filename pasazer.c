@@ -20,18 +20,29 @@ int main() {
     }
 
     srand(time(NULL) ^ getpid());
-    int wiek = rand() % 80 + 1;
+
+    // Szansa na grupę z dzieckiem (15%) lub pasażera powtarzającego wycieczkę (20%)
+    int is_with_child = (rand() % 100) < 15;
+    int is_repeating = (rand() % 100) < 20;
+    int wiek = rand() % 80 + 1; // Wiek głównego pasażera
 
     struct msgbuf msg;
     msg.mtype = 1;
-    snprintf(msg.mtext, sizeof(msg.mtext), "Pasażer (wiek: %d, PID: %d)", wiek, getpid());
+
+    if (is_with_child) {
+        int child_age = rand() % 14 + 1; // Wiek dziecka (1-14)
+        snprintf(msg.mtext, sizeof(msg.mtext), "Pasażer (wiek: %d, PID: %d, powtarzający: %d) z dzieckiem (wiek: %d)", wiek, getpid(), is_repeating, child_age);
+        printf("Pasażer (wiek: %d, PID: %d, powtarzający: %d) z dzieckiem (wiek: %d) zgłasza się do kasjera\n", wiek, getpid(), is_repeating, child_age);
+    } else {
+        snprintf(msg.mtext, sizeof(msg.mtext), "Pasażer (wiek: %d, PID: %d, powtarzający: %d)", wiek, getpid(), is_repeating);
+        printf("Pasażer (wiek: %d, PID: %d, powtarzający: %d) zgłasza się do kasjera\n", wiek, getpid(), is_repeating);
+    }
 
     if (msgsnd(msqid, &msg, sizeof(msg.mtext), 0) == -1) {
         perror("Nie można wysłać wiadomości");
         exit(1);
     }
 
-    printf("Pasażer (wiek: %d, PID: %d) zgłosił się do kasjera\n", wiek, getpid());
     sleep(1); // Symulacja obsługi
     printf("Pasażer (wiek: %d, PID: %d) zakończył działanie\n", wiek, getpid());
 

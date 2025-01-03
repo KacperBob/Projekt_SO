@@ -30,8 +30,22 @@ if [ -f kasjer.pid ]; then
     rm -f kasjer.pid
 fi
 
-# Zabij wszystkie procesy pasażera
-echo "Zatrzymuję procesy pasażera..."
+# Zatrzymaj proces pomost
+if [ -f pomost.pid ]; then
+    PID_POMOST=$(cat pomost.pid)
+    if kill -0 $PID_POMOST 2>/dev/null; then
+        echo "Zatrzymuję pomost (PID: $PID_POMOST)..."
+        kill -15 $PID_POMOST
+        sleep 1
+        kill -9 $PID_POMOST 2>/dev/null
+    else
+        echo "Proces pomost już nie działa."
+    fi
+    rm -f pomost.pid
+fi
+
+# Zabij wszystkie procesy pasażerów
+echo "Zatrzymuję procesy pasażerów..."
 pkill -f ./pasazer 2>/dev/null
 
 # Usuń wszystkie segmenty pamięci współdzielonej należące do użytkownika
@@ -44,7 +58,7 @@ done
 # Usuń wszystkie kolejki komunikatów należące do użytkownika
 echo "Usuwam kolejki komunikatów..."
 ipcs -q | grep $(whoami) | awk '{print $2}' | while read msqid; do
-    echo "Usuwam kolejkę komunikatów MSQID: $msqid"
+    echo "Usuwam kolejki komunikatów MSQID: $msqid"
     ipcrm -q $msqid 2>/dev/null
 done
 
