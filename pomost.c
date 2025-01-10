@@ -17,7 +17,6 @@
 struct pomost_state {
     int passengers_on_bridge;
     int direction; // 1 for boarding, -1 for leaving, 0 for idle
-    int priority_passengers; // Number of priority passengers waiting
 };
 
 int shmid1, shmid2;
@@ -67,23 +66,31 @@ void semaphore_operation(int semid, int sem_num, int op) {
 }
 
 void handle_pomost(struct pomost_state *pomost, int semid, int max_passengers, const char *pomost_name) {
+    static int last_direction1 = -1;
+    static int last_direction2 = -1;
+
     semaphore_operation(semid, 0, -1); // Wejście do sekcji krytycznej
 
-    if (pomost->priority_passengers > 0) {
-        printf("%s obsługuje pasażerów priorytetowych. Liczba: %d\n", pomost_name, pomost->priority_passengers);
-        pomost->priority_passengers--;
-    } else if (pomost->direction == 0) {
-        printf("%s czeka na pasażerów.\n", pomost_name);
+    if (pomost->direction == 0) {
+        if ((pomost_name[7] == '1' && last_direction1 != 0) || (pomost_name[7] == '2' && last_direction2 != 0)) {
+            printf("%s czeka na pasażerów.\n", pomost_name);
+            if (pomost_name[7] == '1')
+                last_direction1 = 0;
+            else
+                last_direction2 = 0;
+        }
     } else if (pomost->direction == 1) {
-        // Boarding passengers
         if (pomost->passengers_on_bridge < max_passengers) {
             pomost->passengers_on_bridge++;
             printf("Pasażer (PID: %d) Wszedł na %s. Liczba pasażerów: %d.\n", getpid(), pomost_name, pomost->passengers_on_bridge);
         } else {
             printf("%s pełny. Oczekiwanie na zejście pasażerów.\n", pomost_name);
         }
+        if (pomost_name[7] == '1')
+            last_direction1 = 1;
+        else
+            last_direction2 = 1;
     } else if (pomost->direction == -1) {
-        // Leaving passengers
         if (pomost->passengers_on_bridge > 0) {
             printf("Pasażer (PID: %d) Zszedł z %s. Liczba pasażerów: %d.\n", getpid(), pomost_name, pomost->passengers_on_bridge);
             pomost->passengers_on_bridge--;
@@ -91,6 +98,10 @@ void handle_pomost(struct pomost_state *pomost, int semid, int max_passengers, c
             printf("%s pusty. Gotowy do załadunku nowych pasażerów.\n", pomost_name);
             pomost->direction = 0;
         }
+        if (pomost_name[7] == '1')
+            last_direction1 = -1;
+        else
+            last_direction2 = -1;
     }
 
     semaphore_operation(semid, 0, 1); // Wyjście z sekcji krytycznej
@@ -119,10 +130,8 @@ int main() {
     // Inicjalizacja stanu pomostów
     pomost1->passengers_on_bridge = 0;
     pomost1->direction = 0;
-    pomost1->priority_passengers = 0;
     pomost2->passengers_on_bridge = 0;
     pomost2->direction = 0;
-    pomost2->priority_passengers = 0;
 
     // Tworzenie zbiorów semaforów
     semid1 = semget(SEM_KEY1, 1, IPC_CREAT | 0666);

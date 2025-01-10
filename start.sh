@@ -40,6 +40,18 @@ cleanup() {
         rm -f pomost.pid
     fi
 
+    # Zatrzymaj proces statek
+    if [ -f statek.pid ]; then
+        PID_STATEK=$(cat statek.pid)
+        if kill -0 $PID_STATEK 2>/dev/null; then
+            echo "Zatrzymuję statek (PID: $PID_STATEK)..."
+            kill -15 $PID_STATEK
+            sleep 1
+            kill -9 $PID_STATEK 2>/dev/null
+        fi
+        rm -f statek.pid
+    fi
+
     # Zatrzymaj wszystkie procesy pasażerów
     echo "Zatrzymuję procesy pasażerów..."
     pkill -f ./pasazer 2>/dev/null
@@ -58,6 +70,8 @@ echo "Uruchamiam kasjer..."
 ./kasjer & echo $! > kasjer.pid
 echo "Uruchamiam pomost..."
 ./pomost & echo $! > pomost.pid
+echo "Uruchamiam statek..."
+./statek & echo $! > statek.pid
 
 # Uruchamianie pasażerów w nieskończonej pętli
 echo "Uruchamiam pasażerów..."

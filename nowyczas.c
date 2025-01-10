@@ -1,4 +1,4 @@
-k#include <stdio.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <signal.h>
@@ -49,7 +49,6 @@ int main() {
     // Symulacja czasu
     while (1) {
         snprintf(czas, 20, "%02d:%02d:00", godzina, minuta);
-        printf("Czas symulowany: %s\n", czas);
         fflush(stdout);
 
         minuta++;
@@ -66,4 +65,3 @@ int main() {
 
     return 0; // Kod nigdy tu nie dotrze z powodu nieskończonej pętli
 }
-
