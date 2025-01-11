@@ -1,4 +1,4 @@
-#include <stdio.h>
+\#include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/ipc.h>
@@ -10,12 +10,13 @@
 
 #define SHM_KEY 5678
 #define MSG_KEY 1234
+#define MAX_MSG_SIZE 100
 #define BOAT1_CAPACITY 10
 #define BOAT2_CAPACITY 8
 
 struct msgbuf {
     long mtype;
-    char mtext[1024];  // Zwiększono rozmiar bufora na wiadomości
+    char mtext[MAX_MSG_SIZE];
 };
 
 float revenue = 0.0;
@@ -27,8 +28,6 @@ int shmid = -1;
 char *czas = NULL;
 
 void cleanup(int signum) {
-    printf("\nZwalnianie zasobów...\n");
-
     if (czas != NULL) {
         if (shmdt(czas) == -1) {
             perror("Nie można odłączyć pamięci współdzielonej");
@@ -68,7 +67,7 @@ void get_simulated_time(char *buffer) {
 int is_within_operating_hours(const char *time) {
     int hour, minute, second;
     sscanf(time, "%d:%d:%d", &hour, &minute, &second);
-    return (hour >= 6 && hour < 23); // Praca między 6:00 a 23:00
+    return (hour >= 6 && hour < 23);
 }
 
 float calculate_ticket_cost(int age) {
@@ -81,7 +80,7 @@ float calculate_ticket_cost(int age) {
 
 const char* assign_boat(int age, int *seats_needed) {
     if (age < 15) {
-        *seats_needed = 2; // Dziecko z opiekunem
+        *seats_needed = 2;
         if (boat2_available_seats >= *seats_needed) {
             boat2_available_seats -= *seats_needed;
             return "łódź nr 2 (z opiekunem)";
@@ -109,7 +108,7 @@ const char* assign_boat(int age, int *seats_needed) {
 }
 
 int should_generate_passenger() {
-    return (rand() % 100) < 20; // 20% szans na pojawienie się pasażera
+    return (rand() % 100) < 20;
 }
 
 int main() {
@@ -134,11 +133,11 @@ int main() {
         }
 
         if (!should_generate_passenger()) {
-            sleep(1); // Losowe opóźnienie przed pojawieniem się pasażera
+            sleep(1);
             continue;
         }
 
-        if (msgrcv(msqid, &msg, sizeof(msg.mtext), 1, IPC_NOWAIT) == -1) {
+        if (msgrcv(msqid, &msg, MAX_MSG_SIZE, 1, IPC_NOWAIT) == -1) {
             if (errno != ENOMSG) {
                 perror("Błąd podczas odbioru wiadomości");
             }
@@ -148,6 +147,10 @@ int main() {
 
         int age, passenger_id;
         sscanf(msg.mtext, "Pasażer (wiek: %d, PID: %d)", &age, &passenger_id);
+
+        if (age < 15) {
+            continue;
+        }
 
         int seats_needed = 1;
         float cost = calculate_ticket_cost(age);
@@ -159,9 +162,9 @@ int main() {
 
         struct msgbuf obs_message;
         obs_message.mtype = 2;
-        snprintf(obs_message.mtext, sizeof(obs_message.mtext), "Obsłużono pasażera PID: %d", passenger_id);
+        snprintf(obs_message.mtext, MAX_MSG_SIZE, "Obsłużono pasażera PID: %d", passenger_id);
 
-        if (msgsnd(msqid, &obs_message, sizeof(obs_message.mtext), 0) == -1) {
+        if (msgsnd(msqid, &obs_message, strlen(obs_message.mtext) + 1, 0) == -1) {
             perror("Błąd wysyłania komunikatu o obsłużeniu");
         }
     }

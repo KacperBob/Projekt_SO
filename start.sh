@@ -78,14 +78,20 @@ trap cleanup SIGINT SIGTERM
 # Uruchamianie głównych procesów
 echo "Uruchamiam nowyczas..."
 ./nowyczas & echo $! > nowyczas.pid
-echo "Uruchamiam kasjer..."
-./kasjer & echo $! > kasjer.pid
+sleep 1
+
 echo "Uruchamiam pomost..."
 ./pomost & echo $! > pomost.pid
+
 echo "Uruchamiam statek..."
 ./statek & echo $! > statek.pid
+
 echo "Uruchamiam sternik..."
 ./sternik & echo $! > sternik.pid
+
+echo "Uruchamiam kasjer..."
+./kasjer & echo $! > kasjer.pid
+sleep 1
 
 # Uruchamianie pasażerów w nieskończonej pętli
 echo "Uruchamiam pasażerów..."
