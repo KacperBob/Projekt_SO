@@ -6,6 +6,7 @@
 #include <sys/sem.h>
 #include <signal.h>
 #include <errno.h>
+#include <sys/wait.h>
 
 #define SHM_KEY1 7890
 #define SHM_KEY2 7891
@@ -26,7 +27,6 @@ struct pomost_state *pomost1, *pomost2;
 void cleanup(int signum) {
     printf("\nZwalnianie zasobów pomostów...\n");
 
-    // Odłączenie pamięci współdzielonej
     if (pomost1 != NULL && shmdt(pomost1) == -1) {
         perror("Nie można odłączyć pamięci współdzielonej dla pomostu 1");
     }
@@ -34,7 +34,6 @@ void cleanup(int signum) {
         perror("Nie można odłączyć pamięci współdzielonej dla pomostu 2");
     }
 
-    // Usunięcie pamięci współdzielonej
     if (shmctl(shmid1, IPC_RMID, NULL) == -1) {
         perror("Nie można usunąć pamięci współdzielonej dla pomostu 1");
     }
@@ -42,7 +41,6 @@ void cleanup(int signum) {
         perror("Nie można usunąć pamięci współdzielonej dla pomostu 2");
     }
 
-    // Usunięcie semaforów
     if (semctl(semid1, 0, IPC_RMID) == -1) {
         perror("Nie można usunąć semaforów dla pomostu 1");
     }
@@ -51,6 +49,12 @@ void cleanup(int signum) {
     }
 
     exit(0);
+}
+
+void handle_sigchld(int signum) {
+    while (waitpid(-1, NULL, WNOHANG) > 0) {
+        // Zbieranie zakończonych procesów potomnych
+    }
 }
 
 void semaphore_operation(int semid, int sem_num, int op) {
@@ -66,53 +70,35 @@ void semaphore_operation(int semid, int sem_num, int op) {
 }
 
 void handle_pomost(struct pomost_state *pomost, int semid, int max_passengers, const char *pomost_name) {
-    static int last_direction1 = -1;
-    static int last_direction2 = -1;
-
     semaphore_operation(semid, 0, -1); // Wejście do sekcji krytycznej
 
     if (pomost->direction == 0) {
-        if ((pomost_name[7] == '1' && last_direction1 != 0) || (pomost_name[7] == '2' && last_direction2 != 0)) {
-            printf("%s czeka na pasażerów.\n", pomost_name);
-            if (pomost_name[7] == '1')
-                last_direction1 = 0;
-            else
-                last_direction2 = 0;
-        }
+        printf("%s czeka na pasażerów.\n", pomost_name);
     } else if (pomost->direction == 1) {
         if (pomost->passengers_on_bridge < max_passengers) {
             pomost->passengers_on_bridge++;
-            printf("Pasażer (PID: %d) Wszedł na %s. Liczba pasażerów: %d.\n", getpid(), pomost_name, pomost->passengers_on_bridge);
+            printf("Pasażer (PID: %d) wszedł na %s. Liczba pasażerów: %d.\n", getpid(), pomost_name, pomost->passengers_on_bridge);
         } else {
             printf("%s pełny. Oczekiwanie na zejście pasażerów.\n", pomost_name);
         }
-        if (pomost_name[7] == '1')
-            last_direction1 = 1;
-        else
-            last_direction2 = 1;
     } else if (pomost->direction == -1) {
         if (pomost->passengers_on_bridge > 0) {
-            printf("Pasażer (PID: %d) Zszedł z %s. Liczba pasażerów: %d.\n", getpid(), pomost_name, pomost->passengers_on_bridge);
+            printf("Pasażer (PID: %d) zszedł z %s. Liczba pasażerów: %d.\n", getpid(), pomost_name, pomost->passengers_on_bridge);
             pomost->passengers_on_bridge--;
         } else {
             printf("%s pusty. Gotowy do załadunku nowych pasażerów.\n", pomost_name);
             pomost->direction = 0;
         }
-        if (pomost_name[7] == '1')
-            last_direction1 = -1;
-        else
-            last_direction2 = -1;
     }
 
     semaphore_operation(semid, 0, 1); // Wyjście z sekcji krytycznej
 }
 
 int main() {
-    // Rejestrowanie sygnałów do czyszczenia zasobów
     signal(SIGINT, cleanup);
     signal(SIGTERM, cleanup);
+    signal(SIGCHLD, handle_sigchld);
 
-    // Tworzenie pamięci współdzielonej
     shmid1 = shmget(SHM_KEY1, sizeof(struct pomost_state), IPC_CREAT | 0666);
     shmid2 = shmget(SHM_KEY2, sizeof(struct pomost_state), IPC_CREAT | 0666);
     if (shmid1 == -1 || shmid2 == -1) {
@@ -127,13 +113,11 @@ int main() {
         cleanup(0);
     }
 
-    // Inicjalizacja stanu pomostów
     pomost1->passengers_on_bridge = 0;
     pomost1->direction = 0;
     pomost2->passengers_on_bridge = 0;
     pomost2->direction = 0;
 
-    // Tworzenie zbiorów semaforów
     semid1 = semget(SEM_KEY1, 1, IPC_CREAT | 0666);
     semid2 = semget(SEM_KEY2, 1, IPC_CREAT | 0666);
     if (semid1 == -1 || semid2 == -1) {
@@ -141,7 +125,6 @@ int main() {
         cleanup(0);
     }
 
-    // Inicjalizacja semaforów
     if (semctl(semid1, 0, SETVAL, 1) == -1 || semctl(semid2, 0, SETVAL, 1) == -1) {
         perror("Nie można ustawić wartości semaforów");
         cleanup(0);
