@@ -52,6 +52,18 @@ cleanup() {
         rm -f statek.pid
     fi
 
+    # Zatrzymaj proces sternik
+    if [ -f sternik.pid ]; then
+        PID_STERNIK=$(cat sternik.pid)
+        if kill -0 $PID_STERNIK 2>/dev/null; then
+            echo "Zatrzymuję sternik (PID: $PID_STERNIK)..."
+            kill -15 $PID_STERNIK
+            sleep 1
+            kill -9 $PID_STERNIK 2>/dev/null
+        fi
+        rm -f sternik.pid
+    fi
+
     # Zatrzymaj wszystkie procesy pasażerów
     echo "Zatrzymuję procesy pasażerów..."
     pkill -f ./pasazer 2>/dev/null
@@ -72,6 +84,8 @@ echo "Uruchamiam pomost..."
 ./pomost & echo $! > pomost.pid
 echo "Uruchamiam statek..."
 ./statek & echo $! > statek.pid
+echo "Uruchamiam sternik..."
+./sternik & echo $! > sternik.pid
 
 # Uruchamianie pasażerów w nieskończonej pętli
 echo "Uruchamiam pasażerów..."

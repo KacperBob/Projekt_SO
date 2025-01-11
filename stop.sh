@@ -2,61 +2,41 @@
 
 echo "Zatrzymuję procesy i usuwam zasoby IPC..."
 
-# Zatrzymaj proces nowyczas
-if [ -f nowyczas.pid ]; then
-    PID_NOWYCZAS=$(cat nowyczas.pid)
-    if kill -0 $PID_NOWYCZAS 2>/dev/null; then
-        echo "Zatrzymuję nowyczas (PID: $PID_NOWYCZAS)..."
-        kill -15 $PID_NOWYCZAS
-        sleep 1
-        kill -9 $PID_NOWYCZAS 2>/dev/null
-    else
-        echo "Proces nowyczas już nie działa."
-    fi
-    rm -f nowyczas.pid
-fi
+terminate_process() {
+    local pid_file=$1
+    local process_name=$2
 
-# Zatrzymaj proces kasjer
-if [ -f kasjer.pid ]; then
-    PID_KASJER=$(cat kasjer.pid)
-    if kill -0 $PID_KASJER 2>/dev/null; then
-        echo "Zatrzymuję kasjer (PID: $PID_KASJER)..."
-        kill -15 $PID_KASJER
-        sleep 1
-        kill -9 $PID_KASJER 2>/dev/null
+    if [ -f "$pid_file" ]; then
+        PID=$(cat "$pid_file")
+        if kill -0 "$PID" 2>/dev/null; then
+            echo "Zatrzymuję $process_name (PID: $PID)..."
+            kill -15 "$PID" 2>/dev/null
+            sleep 1
+            kill -9 "$PID" 2>/dev/null
+        else
+            echo "Proces $process_name już nie działa."
+        fi
+        rm -f "$pid_file"
     else
-        echo "Proces kasjer już nie działa."
+        echo "Nie znaleziono pliku PID dla procesu $process_name. Sprawdzam nazwę procesu..."
+        PID=$(pgrep -f "./$process_name")
+        if [ -n "$PID" ]; then
+            echo "Zatrzymuję $process_name (PID: $PID)..."
+            kill -15 "$PID" 2>/dev/null
+            sleep 1
+            kill -9 "$PID" 2>/dev/null
+        else
+            echo "Nie znaleziono procesu $process_name."
+        fi
     fi
-    rm -f kasjer.pid
-fi
+}
 
-# Zatrzymaj proces pomost
-if [ -f pomost.pid ]; then
-    PID_POMOST=$(cat pomost.pid)
-    if kill -0 $PID_POMOST 2>/dev/null; then
-        echo "Zatrzymuję pomost (PID: $PID_POMOST)..."
-        kill -15 $PID_POMOST
-        sleep 1
-        kill -9 $PID_POMOST 2>/dev/null
-    else
-        echo "Proces pomost już nie działa."
-    fi
-    rm -f pomost.pid
-fi
-
-# Zatrzymaj proces statek
-if [ -f statek.pid ]; then
-    PID_STATEK=$(cat statek.pid)
-    if kill -0 $PID_STATEK 2>/dev/null; then
-        echo "Zatrzymuję statek (PID: $PID_STATEK)..."
-        kill -15 $PID_STATEK
-        sleep 1
-        kill -9 $PID_STATEK 2>/dev/null
-    else
-        echo "Proces statek już nie działa."
-    fi
-    rm -f statek.pid
-fi
+# Zatrzymywanie głównych procesów
+terminate_process "nowyczas.pid" "nowyczas"
+terminate_process "kasjer.pid" "kasjer"
+terminate_process "pomost.pid" "pomost"
+terminate_process "statek.pid" "statek"
+terminate_process "sternik.pid" "sternik"
 
 # Zabij wszystkie procesy pasażerów
 echo "Zatrzymuję procesy pasażerów..."
@@ -65,15 +45,20 @@ pkill -f ./pasazer 2>/dev/null
 # Usuwanie segmentów pamięci współdzielonej
 echo "Usuwam segmenty pamięci współdzielonej..."
 ipcs -m | grep $(whoami) | awk '{print $2}' | while read shmid; do
-    echo "Usuwam segment pamięci SHMID: $shmid"
-    ipcrm -m $shmid 2>/dev/null
+    nattch=$(ipcs -m -i "$shmid" | grep nattch | awk '{print $3}')
+    if [ "$nattch" -eq 0 ]; then
+        echo "Usuwam segment pamięci SHMID: $shmid"
+        ipcrm -m "$shmid" 2>/dev/null || echo "Nie udało się usunąć segmentu pamięci SHMID: $shmid"
+    else
+        echo "Segment pamięci SHMID: $shmid jest nadal używany przez $nattch procesów, nie można usunąć."
+    fi
 done
 
 # Usuwanie kolejek komunikatów
 echo "Usuwam kolejki komunikatów..."
 ipcs -q | grep $(whoami) | awk '{print $2}' | while read msqid; do
     echo "Usuwam kolejkę komunikatów MSQID: $msqid"
-    ipcrm -q $msqid 2>/dev/null
+    ipcrm -q "$msqid" 2>/dev/null || echo "Nie udało się usunąć kolejki komunikatów MSQID: $msqid"
 done
 
 # Usuwanie plików FIFO
