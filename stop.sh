@@ -1,4 +1,4 @@
-k#!/bin/bash
+#!/bin/bash
 
 echo "Zatrzymuję procesy i usuwam zasoby IPC..."
 
@@ -44,39 +44,41 @@ if [ -f pomost.pid ]; then
     rm -f pomost.pid
 fi
 
-# Zatrzymaj procesy łodzi
-pkill -f "./statek" 2>/dev/null
+# Zatrzymaj proces statek
+if [ -f statek.pid ]; then
+    PID_STATEK=$(cat statek.pid)
+    if kill -0 $PID_STATEK 2>/dev/null; then
+        echo "Zatrzymuję statek (PID: $PID_STATEK)..."
+        kill -15 $PID_STATEK
+        sleep 1
+        kill -9 $PID_STATEK 2>/dev/null
+    else
+        echo "Proces statek już nie działa."
+    fi
+    rm -f statek.pid
+fi
 
-# Usuń wszystkie segmenty pamięci współdzielonej należące do użytkownika
+# Zabij wszystkie procesy pasażerów
+echo "Zatrzymuję procesy pasażerów..."
+pkill -f ./pasazer 2>/dev/null
+
+# Usuwanie segmentów pamięci współdzielonej
 echo "Usuwam segmenty pamięci współdzielonej..."
 ipcs -m | grep $(whoami) | awk '{print $2}' | while read shmid; do
     echo "Usuwam segment pamięci SHMID: $shmid"
     ipcrm -m $shmid 2>/dev/null
 done
 
-# Usuń wszystkie semafory należące do użytkownika
-echo "Usuwam semafory..."
-ipcs -s | grep $(whoami) | awk '{print $2}' | while read semid; do
-    echo "Usuwam semafor SEMID: $semid"
-    ipcrm -s $semid 2>/dev/null
-done
-
-# Usuń wszystkie kolejki komunikatów należące do użytkownika
+# Usuwanie kolejek komunikatów
 echo "Usuwam kolejki komunikatów..."
 ipcs -q | grep $(whoami) | awk '{print $2}' | while read msqid; do
     echo "Usuwam kolejkę komunikatów MSQID: $msqid"
     ipcrm -q $msqid 2>/dev/null
 done
 
-# Usuń pliki FIFO
-if [ -e ./fifo_boat1 ]; then
-    echo "Usuwam plik FIFO: ./fifo_boat1"
-    rm -f ./fifo_boat1
-fi
-if [ -e ./fifo_boat2 ]; then
-    echo "Usuwam plik FIFO: ./fifo_boat2"
-    rm -f ./fifo_boat2
-fi
+# Usuwanie plików FIFO
+echo "Usuwam pliki FIFO..."
+rm -f fifo_boat1 fifo_boat2
 
+# Potwierdzenie zakończenia
 echo "Wszystkie procesy i zasoby IPC zostały usunięte."
-
