@@ -27,43 +27,31 @@ int shmid = -1;
 char *czas = NULL;
 
 void cleanup(int signum) {
-    (void)signum; // Ignorowanie parametru
     printf("\nZwalnianie zasobów kasjera...\n");
 
     if (czas != NULL) {
-        if (shmdt(czas) == -1) {
-            perror("Nie można odłączyć pamięci współdzielonej");
-        }
+        shmdt(czas);
     }
 
     if (msqid != -1) {
-        if (msgctl(msqid, IPC_RMID, NULL) == -1) {
-            perror("Nie można usunąć kolejki komunikatów");
-        }
+        msgctl(msqid, IPC_RMID, NULL);
     }
 
     exit(0);
 }
 
-void get_simulated_time(char *buffer) {
+void initialize_shared_memory() {
     shmid = shmget(SHM_KEY, sizeof(char) * 20, 0666);
     if (shmid == -1) {
-        perror("Nie można połączyć się z pamięcią współdzieloną");
-        cleanup(0);
+        perror("Nie można połączyć się z pamięcią współdzieloną (spróbuj uruchomić nowyczas)");
+        exit(1);
     }
 
     czas = shmat(shmid, NULL, 0);
     if (czas == (char *)-1) {
         perror("Nie można przyłączyć pamięci współdzielonej");
-        cleanup(0);
+        exit(1);
     }
-
-    snprintf(buffer, 20, "%s", czas);
-
-    if (shmdt(czas) == -1) {
-        perror("Nie można odłączyć pamięci współdzielonej po odczycie");
-    }
-    czas = NULL;
 }
 
 int is_within_operating_hours(const char *time) {
@@ -72,14 +60,14 @@ int is_within_operating_hours(const char *time) {
         fprintf(stderr, "Niepoprawny format czasu: %s\n", time);
         return 0;
     }
-    return (hour >= 6 && hour < 23); // Praca między 6:00 a 23:00
+    return (hour >= 6 && hour < 23);
 }
 
 float calculate_ticket_cost(int age) {
     if (age < 3) {
         return 0.0;
     } else if (age >= 4 && age <= 14) {
-        return 10.0; // Zniżka 50%
+        return 10.0;
     } else {
         return 20.0;
     }
@@ -108,29 +96,9 @@ void handle_passenger(const char *time, int pid, int age) {
     }
 }
 
-void handle_passenger_with_dependant(const char *time, int parent_pid, int parent_age, int dependant_pid, int dependant_age) {
-    float parent_cost = calculate_ticket_cost(parent_age);
-    float dependant_cost = calculate_ticket_cost(dependant_age);
-    float total_cost = parent_cost + dependant_cost;
-
-    if (boat2_available_seats >= 2) {
-        boat2_available_seats -= 2;
-        printf("[%s] Kasjer: Pasażerowie (PID rodzica: %d, wiek: %d, PID dziecka/seniora: %d, wiek: %d) zapłacili %.2f PLN. Przydział: Łódź nr 2 dla obu.\n",
-               time, parent_pid, parent_age, dependant_pid, dependant_age, total_cost);
-        revenue += total_cost;
-    } else {
-        printf("[%s] Kasjer: Pasażerowie (PID rodzica: %d, PID dziecka/seniora: %d) odrzuceni - brak miejsc na łodzi nr 2.\n",
-               time, parent_pid, dependant_pid);
-    }
-}
-
 int main() {
-    struct sigaction sa;
-    sa.sa_handler = cleanup;
-    sa.sa_flags = 0;
-    sigemptyset(&sa.sa_mask);
-    sigaction(SIGINT, &sa, NULL);
-    sigaction(SIGTERM, &sa, NULL);
+    signal(SIGINT, cleanup);
+    signal(SIGTERM, cleanup);
 
     msqid = msgget(MSG_KEY, IPC_CREAT | 0666);
     if (msqid == -1) {
@@ -138,14 +106,20 @@ int main() {
         exit(1);
     }
 
+    initialize_shared_memory();
+
     struct msgbuf msg;
-    char simulated_time[20];
 
     while (1) {
-        get_simulated_time(simulated_time);
+        if (!czas || czas[0] == '\0') {
+            fprintf(stderr, "Czas nie jest dostępny. Oczekiwanie na nowyczas...\n");
+            sleep(1);
+            initialize_shared_memory();
+            continue;
+        }
 
-        if (!is_within_operating_hours(simulated_time)) {
-            printf("[%s] Kasjer: Zamknięte, otwarte od 6:00.\n", simulated_time);
+        if (!is_within_operating_hours(czas)) {
+            printf("[%s] Kasjer: Zamknięte, otwarte od 6:00.\n", czas);
             sleep(1);
             continue;
         }
@@ -158,17 +132,11 @@ int main() {
             continue;
         }
 
-        if (msg.mtype == 1) {
-            int age, pid;
-            if (sscanf(msg.mtext, "Pasażer (wiek: %d, PID: %d)", &age, &pid) == 2) {
-                handle_passenger(simulated_time, pid, age);
-            }
-        } else if (msg.mtype == 2) {
-            int parent_pid, parent_age, dependant_pid, dependant_age;
-            if (sscanf(msg.mtext, "Pojawił się pasażer z dzieckiem/seniorem PID rodzica: %d, wiek: %d, PID dziecka/seniora: %d, wiek: %d",
-                       &parent_pid, &parent_age, &dependant_pid, &dependant_age) == 4) {
-                handle_passenger_with_dependant(simulated_time, parent_pid, parent_age, dependant_pid, dependant_age);
-            }
+        int age, pid;
+        if (sscanf(msg.mtext, "Pasażer (wiek: %d, PID: %d)", &age, &pid) == 2) {
+            handle_passenger(czas, pid, age);
+        } else {
+            fprintf(stderr, "Niepoprawny format wiadomości: %s\n", msg.mtext);
         }
     }
 

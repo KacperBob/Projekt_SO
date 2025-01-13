@@ -44,6 +44,7 @@ int main() {
         exit(1);
     }
 
+    // Zaczynamy symulację od godziny 6:00
     int godzina = 6, minuta = 0;
 
     // Symulacja czasu
