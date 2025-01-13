@@ -44,11 +44,27 @@ void semaphore_operation(int op) {
 }
 
 void manage_boat(int *boat_passengers, int capacity, int time, const char *boat_name) {
-    printf("%s: Oczekiwanie na pusty pomost...\n", boat_name);
-    while (state->passengers_on_bridge > 0) sleep(1); // Oczekiwanie na pusty pomost
+    printf("%s: Oczekiwanie na pusty pomost lub pasażerów...\n", boat_name);
+
+    int idle_time = 0; // Licznik bezczynności
+    while (1) {
+        // Sprawdzanie warunków: brak pasażerów na pomoście i załadunek
+        if (state->passengers_on_bridge == 0 && *boat_passengers > 0) {
+            break; // Pomost pusty i statek załadowany
+        }
+
+        // Monitorowanie czasu bezczynności (20 minut symulowanego czasu)
+        sleep(1); // 1 sekunda = 1 minuta symulowanego czasu
+        idle_time++;
+
+        if (idle_time >= 20) {
+            printf("%s: Minęło 20 minut bez pasażerów. Odpływam!\n", boat_name);
+            break;
+        }
+    }
 
     printf("%s: Odpływam!\n", boat_name);
-    state->bridge_direction = 0; // Blokowanie ruchu
+    state->bridge_direction = 0; // Blokowanie ruchu na pomoście
     state->boat1_ready = 0;
 
     sleep(time); // Symulacja rejsu

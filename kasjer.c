@@ -12,11 +12,10 @@
 #define MSG_KEY 1234
 #define BOAT1_CAPACITY 10
 #define BOAT2_CAPACITY 8
-#define BLOCKED_PID 2496
 
 struct msgbuf {
     long mtype;
-    char mtext[100];
+    char mtext[200];
 };
 
 float revenue = 0.0;
@@ -26,20 +25,20 @@ int boat2_available_seats = BOAT2_CAPACITY;
 int msqid = -1;
 int shmid = -1;
 char *czas = NULL;
-int blocked_pid_logged = 0; // Dodane: flaga do sprawdzania, czy PID był już zgłoszony
 
 void cleanup(int signum) {
-    printf("\nZwalnianie zasob\u00f3w...\n");
+    (void)signum; // Ignorowanie parametru
+    printf("\nZwalnianie zasobów kasjera...\n");
 
     if (czas != NULL) {
         if (shmdt(czas) == -1) {
-            perror("Nie mo\u017cna od\u0142\u0105czy\u0107 pami\u0119ci wsp\u00f3\u0142dzielonej");
+            perror("Nie można odłączyć pamięci współdzielonej");
         }
     }
 
     if (msqid != -1) {
         if (msgctl(msqid, IPC_RMID, NULL) == -1) {
-            perror("Nie mo\u017cna usun\u0105\u0107 kolejki komunikat\u00f3w");
+            perror("Nie można usunąć kolejki komunikatów");
         }
     }
 
@@ -49,135 +48,127 @@ void cleanup(int signum) {
 void get_simulated_time(char *buffer) {
     shmid = shmget(SHM_KEY, sizeof(char) * 20, 0666);
     if (shmid == -1) {
-        perror("Nie mo\u017cna po\u0142\u0105czy\u0107 si\u0119 z pami\u0119ci\u0105 wsp\u00f3\u0142dzielon\u0105");
+        perror("Nie można połączyć się z pamięcią współdzieloną");
         cleanup(0);
     }
 
     czas = shmat(shmid, NULL, 0);
     if (czas == (char *)-1) {
-        perror("Nie mo\u017cna przy\u0142\u0105czy\u0107 pami\u0119ci wsp\u00f3\u0142dzielonej");
+        perror("Nie można przyłączyć pamięci współdzielonej");
         cleanup(0);
     }
 
     snprintf(buffer, 20, "%s", czas);
 
     if (shmdt(czas) == -1) {
-        perror("Nie mo\u017cna od\u0142\u0105czy\u0107 pami\u0119ci wsp\u00f3\u0142dzielonej po odczycie");
+        perror("Nie można odłączyć pamięci współdzielonej po odczycie");
     }
     czas = NULL;
 }
 
 int is_within_operating_hours(const char *time) {
     int hour, minute, second;
-    sscanf(time, "%d:%d:%d", &hour, &minute, &second);
-    return (hour >= 6 && hour < 23);
+    if (sscanf(time, "%d:%d:%d", &hour, &minute, &second) != 3) {
+        fprintf(stderr, "Niepoprawny format czasu: %s\n", time);
+        return 0;
+    }
+    return (hour >= 6 && hour < 23); // Praca między 6:00 a 23:00
 }
 
 float calculate_ticket_cost(int age) {
     if (age < 3) {
         return 0.0;
+    } else if (age >= 4 && age <= 14) {
+        return 10.0; // Zniżka 50%
     } else {
         return 20.0;
     }
 }
 
-const char* assign_boat(int age, int group_with_adult, int *seats_needed) {
-    if (age < 15) {
-        if (group_with_adult) {
-            if (boat2_available_seats >= *seats_needed) {
-                boat2_available_seats -= *seats_needed;
-                return "\u0142\u00f3d\u017a nr 2 (z opiekunem)";
-            } else {
-                return "Odrzucony (brak miejsc na \u0142odzi nr 2 dla grupy)";
-            }
-        } else {
-            return "Odrzucony (wymagana opieka osoby doros\u0142ej)";
-        }
-    } else if (age > 70) {
-        if (boat2_available_seats >= 1) {
-            boat2_available_seats--;
-            return "\u0142\u00f3d\u017a nr 2";
-        } else {
-            return "Odrzucony (brak miejsc na \u0142odzi nr 2)";
-        }
+void handle_passenger(const char *time, int pid, int age) {
+    float cost = calculate_ticket_cost(age);
+    const char *boat_assignment;
+
+    if (boat1_available_seats > 0) {
+        boat1_available_seats--;
+        boat_assignment = "Łódź nr 1";
+    } else if (boat2_available_seats > 0) {
+        boat2_available_seats--;
+        boat_assignment = "Łódź nr 2";
     } else {
-        if (boat1_available_seats >= 1) {
-            boat1_available_seats--;
-            return "\u0142\u00f3d\u017a nr 1";
-        } else if (boat2_available_seats >= 1) {
-            boat2_available_seats--;
-            return "\u0142\u00f3d\u017a nr 2";
-        } else {
-            return "Odrzucony (brak miejsc na obu \u0142odziach)";
-        }
+        printf("[%s] Kasjer: Pasażer (PID: %d, wiek: %d) odrzucony - brak miejsc.\n", time, pid, age);
+        return;
+    }
+
+    if (cost == 0.0) {
+        printf("[%s] Kasjer: Pasażer (PID: %d, wiek: %d) płynie za darmo. Przydział: %s.\n", time, pid, age, boat_assignment);
+    } else {
+        revenue += cost;
+        printf("[%s] Kasjer: Pasażer (PID: %d, wiek: %d) zapłacił %.2f PLN. Przydział: %s.\n", time, pid, age, cost, boat_assignment);
+    }
+}
+
+void handle_passenger_with_dependant(const char *time, int parent_pid, int parent_age, int dependant_pid, int dependant_age) {
+    float parent_cost = calculate_ticket_cost(parent_age);
+    float dependant_cost = calculate_ticket_cost(dependant_age);
+    float total_cost = parent_cost + dependant_cost;
+
+    if (boat2_available_seats >= 2) {
+        boat2_available_seats -= 2;
+        printf("[%s] Kasjer: Pasażerowie (PID rodzica: %d, wiek: %d, PID dziecka/seniora: %d, wiek: %d) zapłacili %.2f PLN. Przydział: Łódź nr 2 dla obu.\n",
+               time, parent_pid, parent_age, dependant_pid, dependant_age, total_cost);
+        revenue += total_cost;
+    } else {
+        printf("[%s] Kasjer: Pasażerowie (PID rodzica: %d, PID dziecka/seniora: %d) odrzuceni - brak miejsc na łodzi nr 2.\n",
+               time, parent_pid, dependant_pid);
     }
 }
 
 int main() {
-    signal(SIGINT, cleanup);
-    signal(SIGTERM, cleanup);
+    struct sigaction sa;
+    sa.sa_handler = cleanup;
+    sa.sa_flags = 0;
+    sigemptyset(&sa.sa_mask);
+    sigaction(SIGINT, &sa, NULL);
+    sigaction(SIGTERM, &sa, NULL);
 
     msqid = msgget(MSG_KEY, IPC_CREAT | 0666);
     if (msqid == -1) {
-        perror("Nie mo\u017cna utworzy\u0107 kolejki komunikat\u00f3w");
+        perror("Nie można utworzyć kolejki komunikatów");
         exit(1);
     }
 
     struct msgbuf msg;
     char simulated_time[20];
-    int last_processed_pid = -1;
 
     while (1) {
         get_simulated_time(simulated_time);
 
         if (!is_within_operating_hours(simulated_time)) {
-            printf("[%s] Kasjer: Zamkni\u0119te, otwarte od 6:00.\n", simulated_time);
+            printf("[%s] Kasjer: Zamknięte, otwarte od 6:00.\n", simulated_time);
             sleep(1);
             continue;
         }
 
-        if (msgrcv(msqid, &msg, sizeof(msg.mtext), 1, IPC_NOWAIT) == -1) {
+        if (msgrcv(msqid, &msg, sizeof(msg.mtext), 0, IPC_NOWAIT) == -1) {
             if (errno != ENOMSG) {
-                perror("B\u0142\u0105d podczas odbioru wiadomo\u015bci");
+                perror("Błąd podczas odbioru wiadomości");
             }
             sleep(1);
             continue;
         }
 
-        int age;
-        int passenger_id;
-        int group_with_adult = 0;
-        int seats_needed = 1;
-        sscanf(msg.mtext, "Pasa\u017cer (wiek: %d, PID: %d)", &age, &passenger_id);
-
-        if (passenger_id == BLOCKED_PID) {
-            if (!blocked_pid_logged) {
-                printf("[%s] Kasjer: Pasa\u017cer o PID: %d jest zablokowany i nie b\u0119dzie obs\u0142ugiwany.\n", simulated_time, passenger_id);
-                blocked_pid_logged = 1;
+        if (msg.mtype == 1) {
+            int age, pid;
+            if (sscanf(msg.mtext, "Pasażer (wiek: %d, PID: %d)", &age, &pid) == 2) {
+                handle_passenger(simulated_time, pid, age);
             }
-            continue;
-        }
-
-        if (passenger_id == last_processed_pid) {
-            sleep(1);
-            continue;
-        }
-
-        last_processed_pid = passenger_id;
-
-        if (age < 15) {
-            group_with_adult = 1;
-            seats_needed = 2;
-        }
-
-        float cost = calculate_ticket_cost(age);
-        const char* boat_assignment = assign_boat(age, group_with_adult, &seats_needed);
-
-        if (cost == 0.0) {
-            printf("[%s] Kasjer: Pasa\u017cer (PID: %d, wiek: %d) otrzyma\u0142 darmowy bilet. Przydzia\u0142: %s.\n", simulated_time, passenger_id, age, boat_assignment);
-        } else {
-            printf("[%s] Kasjer: Pasa\u017cer (PID: %d, wiek: %d) zap\u0142aci\u0142 %.2f PLN. Przydzia\u0142: %s.\n", simulated_time, passenger_id, age, cost, boat_assignment);
-            revenue += cost;
+        } else if (msg.mtype == 2) {
+            int parent_pid, parent_age, dependant_pid, dependant_age;
+            if (sscanf(msg.mtext, "Pojawił się pasażer z dzieckiem/seniorem PID rodzica: %d, wiek: %d, PID dziecka/seniora: %d, wiek: %d",
+                       &parent_pid, &parent_age, &dependant_pid, &dependant_age) == 4) {
+                handle_passenger_with_dependant(simulated_time, parent_pid, parent_age, dependant_pid, dependant_age);
+            }
         }
     }
 

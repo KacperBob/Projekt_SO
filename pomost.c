@@ -16,8 +16,8 @@
 #define MAX_PASSENGERS2 5
 
 struct pomost_state {
-    int passengers_on_bridge;  // Liczba pasażerów na pomoście
-    int direction;             // 1 - wchodzenie, -1 - schodzenie, 0 - brak ruchu
+    int passengers_on_bridge;
+    int direction; // 1 for boarding, -1 for leaving, 0 for idle
 };
 
 int shmid1, shmid2;
@@ -69,24 +69,31 @@ void semaphore_operation(int semid, int sem_num, int op) {
     }
 }
 
-void handle_pomost(struct pomost_state *pomost, int semid, int max_passengers, const char *pomost_name) {
+void handle_pomost(struct pomost_state *pomost, int semid, int max_passengers, const char *pomost_name, int *last_direction) {
     semaphore_operation(semid, 0, -1); // Wejście do sekcji krytycznej
 
-    if (pomost->direction == 0) {
-        printf("%s czeka na pozwolenie na ruch pasażerów.\n", pomost_name);
-    } else if (pomost->direction == 1) {
+    // Wyświetl komunikat tylko, gdy zmienia się stan direction
+    if (pomost->direction != *last_direction) {
+        if (pomost->direction == 0) {
+            printf("%s: Pomost gotowy przyjąć pasażerów na statek.\n", pomost_name);
+        } else if (pomost->direction == -1) {
+            printf("%s: Pomost gotowy do zejścia pasażerów ze statku.\n", pomost_name);
+        }
+        *last_direction = pomost->direction;
+    }
+
+    if (pomost->direction == 1) {
         if (pomost->passengers_on_bridge < max_passengers) {
             pomost->passengers_on_bridge++;
-            printf("Pasażer wszedł na %s. Liczba pasażerów na pomoście: %d.\n", pomost_name, pomost->passengers_on_bridge);
+            printf("Pasażer (PID: %d) wszedł na %s. Liczba pasażerów: %d.\n", getpid(), pomost_name, pomost->passengers_on_bridge);
         } else {
             printf("%s pełny. Oczekiwanie na zejście pasażerów.\n", pomost_name);
         }
     } else if (pomost->direction == -1) {
         if (pomost->passengers_on_bridge > 0) {
-            printf("Pasażer zszedł z %s. Liczba pasażerów na pomoście: %d.\n", pomost_name, pomost->passengers_on_bridge);
+            printf("Pasażer (PID: %d) zszedł z %s. Liczba pasażerów: %d.\n", getpid(), pomost_name, pomost->passengers_on_bridge);
             pomost->passengers_on_bridge--;
         } else {
-            printf("%s pusty. Gotowy na wprowadzenie pasażerów.\n", pomost_name);
             pomost->direction = 0;
         }
     }
@@ -99,7 +106,6 @@ int main() {
     signal(SIGTERM, cleanup);
     signal(SIGCHLD, handle_sigchld);
 
-    // Inicjalizacja pamięci współdzielonej dla pomostów
     shmid1 = shmget(SHM_KEY1, sizeof(struct pomost_state), IPC_CREAT | 0666);
     shmid2 = shmget(SHM_KEY2, sizeof(struct pomost_state), IPC_CREAT | 0666);
     if (shmid1 == -1 || shmid2 == -1) {
@@ -114,13 +120,11 @@ int main() {
         cleanup(0);
     }
 
-    // Inicjalizacja stanu pomostów
     pomost1->passengers_on_bridge = 0;
-    pomost1->direction = 0; // Brak ruchu
+    pomost1->direction = 0;
     pomost2->passengers_on_bridge = 0;
-    pomost2->direction = 0; // Brak ruchu
+    pomost2->direction = 0;
 
-    // Inicjalizacja semaforów dla pomostów
     semid1 = semget(SEM_KEY1, 1, IPC_CREAT | 0666);
     semid2 = semget(SEM_KEY2, 1, IPC_CREAT | 0666);
     if (semid1 == -1 || semid2 == -1) {
@@ -135,10 +139,12 @@ int main() {
 
     printf("Pomosty są gotowe do obsługi pasażerów.\n");
 
-    // Główna pętla obsługi pomostów
+    int last_direction1 = -2; // Przechowuje poprzedni stan kierunku dla Pomostu 1
+    int last_direction2 = -2; // Przechowuje poprzedni stan kierunku dla Pomostu 2
+
     while (1) {
-        handle_pomost(pomost1, semid1, MAX_PASSENGERS1, "Pomost 1");
-        handle_pomost(pomost2, semid2, MAX_PASSENGERS2, "Pomost 2");
+        handle_pomost(pomost1, semid1, MAX_PASSENGERS1, "Pomost 1", &last_direction1);
+        handle_pomost(pomost2, semid2, MAX_PASSENGERS2, "Pomost 2", &last_direction2);
         sleep(1); // Symulacja czasu obsługi
     }
 
