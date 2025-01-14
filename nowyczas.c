@@ -27,7 +27,6 @@ int main() {
     // Rejestrowanie obsługi sygnałów
     signal(SIGINT, clean_up);   // Obsługa Ctrl+C
     signal(SIGTERM, clean_up);  // Obsługa polecenia kill
-    signal(SIGTSTP, clean_up);  // Obsługa Ctrl+Z
 
     // Tworzenie segmentu pamięci współdzielonej
     shmid = shmget(SHM_KEY, sizeof(char) * 20, IPC_CREAT | 0666);
@@ -43,6 +42,9 @@ int main() {
         shmctl(shmid, IPC_RMID, NULL); // Usuwanie pamięci, jeśli podłączenie się nie powiodło
         exit(1);
     }
+
+    // Potwierdzenie inicjalizacji pamięci
+    printf("Pamięć współdzielona utworzona i podłączona. Rozpoczynam symulację czasu...\n");
 
     // Zaczynamy symulację od godziny 6:00
     int godzina = 6, minuta = 0;

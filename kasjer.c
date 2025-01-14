@@ -1,73 +1,28 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <sys/ipc.h>
-#include <sys/msg.h>
-#include <sys/shm.h>
 #include <signal.h>
-#include <string.h>
-#include <errno.h>
+#include <time.h>
 
-#define SHM_KEY 5678
-#define MSG_KEY 1234
 #define BOAT1_CAPACITY 10
 #define BOAT2_CAPACITY 8
-
-struct msgbuf {
-    long mtype;
-    char mtext[200];
-};
 
 float revenue = 0.0;
 int boat1_available_seats = BOAT1_CAPACITY;
 int boat2_available_seats = BOAT2_CAPACITY;
 
-int msqid = -1;
-int shmid = -1;
-char *czas = NULL;
-
 void cleanup(int signum) {
-    printf("\nZwalnianie zasobów kasjera...\n");
-
-    if (czas != NULL) {
-        shmdt(czas);
-    }
-
-    if (msqid != -1) {
-        msgctl(msqid, IPC_RMID, NULL);
-    }
-
+    (void)signum; // Ignorowanie parametru
+    printf("\nZatrzymuję kasjera...\n");
+    printf("Ostateczny przychód: %.2f PLN\n", revenue);
     exit(0);
-}
-
-void initialize_shared_memory() {
-    shmid = shmget(SHM_KEY, sizeof(char) * 20, 0666);
-    if (shmid == -1) {
-        perror("Nie można połączyć się z pamięcią współdzieloną (spróbuj uruchomić nowyczas)");
-        exit(1);
-    }
-
-    czas = shmat(shmid, NULL, 0);
-    if (czas == (char *)-1) {
-        perror("Nie można przyłączyć pamięci współdzielonej");
-        exit(1);
-    }
-}
-
-int is_within_operating_hours(const char *time) {
-    int hour, minute, second;
-    if (sscanf(time, "%d:%d:%d", &hour, &minute, &second) != 3) {
-        fprintf(stderr, "Niepoprawny format czasu: %s\n", time);
-        return 0;
-    }
-    return (hour >= 6 && hour < 23);
 }
 
 float calculate_ticket_cost(int age) {
     if (age < 3) {
         return 0.0;
     } else if (age >= 4 && age <= 14) {
-        return 10.0;
+        return 10.0; // Zniżka 50%
     } else {
         return 20.0;
     }
@@ -96,48 +51,56 @@ void handle_passenger(const char *time, int pid, int age) {
     }
 }
 
-int main() {
-    signal(SIGINT, cleanup);
-    signal(SIGTERM, cleanup);
+void handle_passenger_with_dependant(const char *time, int parent_pid, int parent_age, int dependant_pid, int dependant_age) {
+    float parent_cost = calculate_ticket_cost(parent_age);
+    float dependant_cost = calculate_ticket_cost(dependant_age);
+    float total_cost = parent_cost + dependant_cost;
 
-    msqid = msgget(MSG_KEY, IPC_CREAT | 0666);
-    if (msqid == -1) {
-        perror("Nie można utworzyć kolejki komunikatów");
-        exit(1);
+    if (boat2_available_seats >= 2) {
+        boat2_available_seats -= 2;
+        printf("[%s] Kasjer: Pasażerowie (PID rodzica: %d, wiek: %d, PID dziecka/seniora: %d, wiek: %d) zapłacili %.2f PLN. Przydział: Łódź nr 2 dla obu.\n",
+               time, parent_pid, parent_age, dependant_pid, dependant_age, total_cost);
+        revenue += total_cost;
+    } else {
+        printf("[%s] Kasjer: Pasażerowie (PID rodzica: %d, PID dziecka/seniora: %d) odrzuceni - brak miejsc na łodzi nr 2.\n",
+               time, parent_pid, dependant_pid);
     }
+}
 
-    initialize_shared_memory();
+int main() {
+    struct sigaction sa;
+    sa.sa_handler = cleanup;
+    sa.sa_flags = 0;
+    sigemptyset(&sa.sa_mask);
+    sigaction(SIGINT, &sa, NULL);
+    sigaction(SIGTERM, &sa, NULL);
 
-    struct msgbuf msg;
+    srand(time(NULL));
 
+    char simulated_time[20];
     while (1) {
-        if (!czas || czas[0] == '\0') {
-            fprintf(stderr, "Czas nie jest dostępny. Oczekiwanie na nowyczas...\n");
-            sleep(1);
-            initialize_shared_memory();
-            continue;
-        }
+        // Symulacja czasu
+        time_t now = time(NULL);
+        struct tm *local_time = localtime(&now);
+        snprintf(simulated_time, sizeof(simulated_time), "%02d:%02d:%02d",
+                 local_time->tm_hour, local_time->tm_min, local_time->tm_sec);
 
-        if (!is_within_operating_hours(czas)) {
-            printf("[%s] Kasjer: Zamknięte, otwarte od 6:00.\n", czas);
-            sleep(1);
-            continue;
-        }
-
-        if (msgrcv(msqid, &msg, sizeof(msg.mtext), 0, IPC_NOWAIT) == -1) {
-            if (errno != ENOMSG) {
-                perror("Błąd podczas odbioru wiadomości");
-            }
-            sleep(1);
-            continue;
-        }
-
-        int age, pid;
-        if (sscanf(msg.mtext, "Pasażer (wiek: %d, PID: %d)", &age, &pid) == 2) {
-            handle_passenger(czas, pid, age);
+        int mode = rand() % 2; // Wybór między pasażerem pojedynczym a z osobą zależną
+        if (mode == 0) {
+            // Pojedynczy pasażer
+            int pid = rand() % 10000 + 1; // Losowy PID
+            int age = rand() % 56 + 15;  // Wiek: 15–70
+            handle_passenger(simulated_time, pid, age);
         } else {
-            fprintf(stderr, "Niepoprawny format wiadomości: %s\n", msg.mtext);
+            // Pasażer z osobą zależną
+            int parent_pid = rand() % 10000 + 1;    // Losowy PID rodzica
+            int dependant_pid = rand() % 10000 + 1; // Losowy PID dziecka/seniora
+            int parent_age = rand() % 56 + 15;      // Wiek rodzica: 15–70
+            int dependant_age = (rand() % 2 == 0) ? (rand() % 14 + 1) : (rand() % 30 + 71); // Wiek dziecka: 1–14, seniora: 71–100
+            handle_passenger_with_dependant(simulated_time, parent_pid, parent_age, dependant_pid, dependant_age);
         }
+
+        sleep(1); // Symulacja przetwarzania
     }
 
     return 0;
