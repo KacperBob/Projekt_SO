@@ -78,12 +78,16 @@ int main() {
     if (mkfifo(FIFO_PATH1, 0666) == -1 && errno != EEXIST) {
         perror("Nie udało się utworzyć FIFO dla boat1");
         exit(1);
+    } else {
+        printf("FIFO dla boat1 utworzone lub już istnieje.\n");
     }
 
     if (mkfifo(FIFO_PATH2, 0666) == -1 && errno != EEXIST) {
         perror("Nie udało się utworzyć FIFO dla boat2");
         unlink(FIFO_PATH1);
         exit(1);
+    } else {
+        printf("FIFO dla boat2 utworzone lub już istnieje.\n");
     }
 
     printf("FIFO files created successfully.\n");
@@ -97,12 +101,16 @@ int main() {
     if (fd_boat1 == -1) {
         perror("Nie udało się otworzyć FIFO dla boat1");
         cleanup();
+    } else {
+        printf("FIFO boat1 otwarte do odczytu.\n");
     }
 
     int fd_boat2 = open(FIFO_PATH2, O_RDONLY);
     if (fd_boat2 == -1) {
         perror("Nie udało się otworzyć FIFO dla boat2");
         cleanup();
+    } else {
+        printf("FIFO boat2 otwarte do odczytu.\n");
     }
 
     printf("FIFO files opened for reading.\n");

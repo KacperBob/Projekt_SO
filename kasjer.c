@@ -8,6 +8,8 @@
 #include <fcntl.h>
 #include <string.h>
 #include <time.h>
+#include <sys/stat.h>
+#include <errno.h>
 
 #define BOAT1_CAPACITY 10
 #define BOAT2_CAPACITY 10
@@ -27,6 +29,10 @@ void cleanup(int signum) {
     (void)signum; // Ignorowanie parametru
     printf("\nZatrzymuję kasjera...\n");
     printf("Ostateczny przychód: %.2f PLN\n", revenue);
+    unlink(FIFO_BOAT1);
+    unlink(FIFO_BOAT2);
+    unlink(FIFO_POMOST);
+    unlink(FIFO_LOG);
     exit(0);
 }
 
@@ -62,23 +68,18 @@ void handle_passenger(const char *time, int pid, int age) {
         boat_assignment = "Łódź nr 1";
         snprintf(fifo_message, sizeof(fifo_message), "Pasażer PID: %d, wiek: %d, statek: 1\n", pid, age);
         send_to_fifo(FIFO_BOAT1, fifo_message);
+        printf("[%s] Kasjer: Pasażer (PID: %d, wiek: %d) zapłacił %.2f PLN. Przydział: Łódź nr 1. Pozostało miejsc: %d/10\n", time, pid, age, cost, boat1_available_seats);
     } else if (boat2_available_seats > 0) {
         boat2_available_seats--;
         boat_assignment = "Łódź nr 2";
         snprintf(fifo_message, sizeof(fifo_message), "Pasażer PID: %d, wiek: %d, statek: 2\n", pid, age);
         send_to_fifo(FIFO_BOAT2, fifo_message);
+        printf("[%s] Kasjer: Pasażer (PID: %d, wiek: %d) zapłacił %.2f PLN. Przydział: Łódź nr 2. Pozostało miejsc: %d/10\n", time, pid, age, cost, boat2_available_seats);
     } else {
         printf("[%s] Kasjer: Pasażer (PID: %d, wiek: %d) odrzucony - brak miejsc.\n", time, pid, age);
         snprintf(fifo_message, sizeof(fifo_message), "Pasażer PID: %d, wiek: %d odrzucony - brak miejsc\n", pid, age);
         send_to_fifo(FIFO_LOG, fifo_message);
         return;
-    }
-
-    if (cost == 0.0) {
-        printf("[%s] Kasjer: Pasażer (PID: %d, wiek: %d) płynie za darmo. Przydział: %s.\n", time, pid, age, boat_assignment);
-    } else {
-        revenue += cost;
-        printf("[%s] Kasjer: Pasażer (PID: %d, wiek: %d) zapłacił %.2f PLN. Przydział: %s.\n", time, pid, age, cost, boat_assignment);
     }
 
     snprintf(fifo_message, sizeof(fifo_message), "[%s] Kasjer obsłużył pasażera PID: %d, wiek: %d, koszt: %.2f, statek: %s\n",
@@ -94,8 +95,8 @@ void handle_passenger_with_dependant(const char *time, int parent_pid, int paren
 
     if (boat2_available_seats >= 2) {
         boat2_available_seats -= 2;
-        printf("[%s] Kasjer: Pasażerowie (PID rodzica: %d, wiek: %d, PID dziecka/seniora: %d, wiek: %d) zapłacili %.2f PLN. Przydział: Łódź nr 2 dla obu.\n",
-               time, parent_pid, parent_age, dependant_pid, dependant_age, total_cost);
+        printf("[%s] Kasjer: Pasażerowie (PID rodzica: %d, wiek: %d, PID dziecka/seniora: %d, wiek: %d) zapłacili %.2f PLN. Przydział: Łódź nr 2. Pozostało miejsc: %d/10\n",
+               time, parent_pid, parent_age, dependant_pid, dependant_age, total_cost, boat2_available_seats);
         snprintf(fifo_message, sizeof(fifo_message), "Rodzic PID: %d, wiek: %d; Dziecko/Senior PID: %d, wiek: %d, statek: 2\n",
                  parent_pid, parent_age, dependant_pid, dependant_age);
         send_to_fifo(FIFO_BOAT2, fifo_message);
@@ -114,6 +115,24 @@ void handle_passenger_with_dependant(const char *time, int parent_pid, int paren
     send_to_fifo(FIFO_POMOST, fifo_message);
 }
 
+void initialize_fifos() {
+    if (mkfifo(FIFO_BOAT1, 0666) == -1 && errno != EEXIST) {
+        exit(EXIT_FAILURE);
+    }
+
+    if (mkfifo(FIFO_BOAT2, 0666) == -1 && errno != EEXIST) {
+        exit(EXIT_FAILURE);
+    }
+
+    if (mkfifo(FIFO_POMOST, 0666) == -1 && errno != EEXIST) {
+        exit(EXIT_FAILURE);
+    }
+
+    if (mkfifo(FIFO_LOG, 0666) == -1 && errno != EEXIST) {
+        exit(EXIT_FAILURE);
+    }
+}
+
 int main() {
     struct sigaction sa;
     sa.sa_handler = cleanup;
@@ -121,6 +140,11 @@ int main() {
     sigemptyset(&sa.sa_mask);
     sigaction(SIGINT, &sa, NULL);
     sigaction(SIGTERM, &sa, NULL);
+
+    initialize_fifos();
+
+    // Dodanie opóźnienia, aby inne procesy mogły poprawnie otworzyć FIFO
+    sleep(1);
 
     int shmid;
     char *shared_time;
