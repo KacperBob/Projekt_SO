@@ -12,6 +12,8 @@
 
 #define SHM_KEY_POMOST1 7890
 #define SHM_KEY_POMOST2 7891
+#define SHM_KEY_TIME 5678
+#define TIME_SIZE 20
 #define SEM_KEY_POMOST1 4567
 #define SEM_KEY_POMOST2 4568
 #define FIFO_BOAT1 "fifo_boat1"
@@ -26,20 +28,24 @@ struct pomost_state {
     int direction; // 1 for boarding, -1 for leaving, 0 for idle
 };
 
-int shmid_pomost1, shmid_pomost2;
+int shmid_pomost1, shmid_pomost2, shmid_time;
 int semid_pomost1, semid_pomost2;
 struct pomost_state *pomost1, *pomost2;
+char *shared_time;
 int passengers_on_boat1 = 0, passengers_on_boat2 = 0;
 time_t last_passenger_time_boat1, last_passenger_time_boat2;
 
 void cleanup(int signum) {
-    printf("\nZwalnianie zasobów sternika...\n");
+    printf("\nZwalnianie zasobów pomostu...\n");
 
     if (pomost1 != NULL && shmdt(pomost1) == -1) {
         perror("Nie można odłączyć pamięci współdzielonej dla pomostu 1");
     }
     if (pomost2 != NULL && shmdt(pomost2) == -1) {
         perror("Nie można odłączyć pamięci współdzielonej dla pomostu 2");
+    }
+    if (shared_time != NULL && shmdt(shared_time) == -1) {
+        perror("Nie można odłączyć pamięci współdzielonej dla czasu");
     }
 
     exit(0);
@@ -58,12 +64,12 @@ void semaphore_operation(int semid, int sem_num, int op) {
 }
 
 void start_trip(struct pomost_state *pomost, int *passengers_on_boat, int semid, const char *pomost_name) {
-    printf("[%s] Sternik: Rozpoczynam rejs. Liczba pasażerów na statku: %d.\n", pomost_name, *passengers_on_boat);
+    printf("[%s] Sternik: Rozpoczynam rejs. Liczba pasażerów na statku: %d.\n", shared_time, *passengers_on_boat);
 
     // Zamykanie pomostu przed rejsem
     semaphore_operation(semid, 0, -1);
     while (pomost->passengers_on_bridge > 0) {
-        printf("[%s] Sternik: Oczekiwanie, aż pomost się opróżni.\n", pomost_name);
+        printf("[%s] Sternik: Oczekiwanie, aż pomost się opróżni.\n", shared_time);
         sleep(1); // Czekanie, aż pomost będzie pusty
     }
     pomost->direction = 0; // Pomost zablokowany
@@ -72,7 +78,7 @@ void start_trip(struct pomost_state *pomost, int *passengers_on_boat, int semid,
     sleep(TRIP_DURATION);
 
     // Kończenie rejsu
-    printf("[%s] Sternik: Rejs zakończony. Pasażerowie mogą schodzić.\n", pomost_name);
+    printf("[%s] Sternik: Rejs zakończony. Pasażerowie mogą schodzić.\n", shared_time);
     pomost->direction = -1; // Ustawienie pomostu na schodzenie
     semaphore_operation(semid, 0, 1);
 
@@ -92,14 +98,14 @@ void control_pomost_and_boat(struct pomost_state *pomost, int *passengers_on_boa
     }
 
     while (read(fifo_fd, buffer, sizeof(buffer)) > 0) {
-        printf("[%s] Sternik otrzymał: %s\n", pomost_name, buffer);
+        printf("[%s] Sternik otrzymał: %s\n", shared_time, buffer);
         if (pomost->direction == 1) {
             if (*passengers_on_boat < max_passengers) {
                 (*passengers_on_boat)++;
                 *last_passenger_time = time(NULL); // Aktualizacja czasu ostatniego pasażera
-                printf("[%s] Sternik: Pasażer wsiada na statek. Liczba pasażerów na statku: %d.\n", pomost_name, *passengers_on_boat);
+                printf("[%s] Sternik: Pasażer wsiada na statek. Liczba pasażerów na statku: %d.\n", shared_time, *passengers_on_boat);
             } else {
-                printf("[%s] Sternik: Statek pełny, pasażer musi poczekać.\n", pomost_name);
+                printf("[%s] Sternik: Statek pełny, pasażer musi poczekać.\n", shared_time);
             }
         }
     }
@@ -117,11 +123,25 @@ int main() {
     signal(SIGINT, cleanup);
     signal(SIGTERM, cleanup);
 
+    // Przyłączenie pamięci współdzielonej dla czasu
+    shmid_time = shmget(SHM_KEY_TIME, TIME_SIZE, 0666);
+    while (shmid_time == -1) {
+        perror("Nie można uzyskać dostępu do pamięci współdzielonej dla czasu");
+        sleep(1); // Oczekiwanie na utworzenie pamięci przez proces czasu
+        shmid_time = shmget(SHM_KEY_TIME, TIME_SIZE, 0666);
+    }
+
+    shared_time = (char *)shmat(shmid_time, NULL, 0);
+    if (shared_time == (char *)-1) {
+        perror("Nie można przyłączyć pamięci współdzielonej dla czasu");
+        cleanup(0);
+    }
+
     shmid_pomost1 = shmget(SHM_KEY_POMOST1, sizeof(struct pomost_state), IPC_CREAT | 0666);
     shmid_pomost2 = shmget(SHM_KEY_POMOST2, sizeof(struct pomost_state), IPC_CREAT | 0666);
     if (shmid_pomost1 == -1 || shmid_pomost2 == -1) {
         perror("Nie można utworzyć pamięci współdzielonej");
-        exit(1);
+        cleanup(0);
     }
 
     pomost1 = (struct pomost_state *)shmat(shmid_pomost1, NULL, 0);

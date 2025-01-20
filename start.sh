@@ -81,8 +81,8 @@ echo "Uruchamiam statek..."
 echo "Uruchamiam pasażerów i pasażerowie..."
 while true; do
     ./pasazer &
-    sleep $((RANDOM % 3 + 1)) # Losowy czas między uruchomieniem pasażerów
+    sleep $((RANDOM % 10 + 5)) # Zmniejszona częstotliwość pojawiania się pasażerów
 
     ./pasazerowie &
-    sleep $((RANDOM % 5 + 3)) # Losowy czas między uruchomieniem pasażerów z osobami zależnymi
+    sleep $((RANDOM % 15 + 10)) # Zmniejszona częstotliwość pojawiania się pasażerów z osobami zależnymi
 done

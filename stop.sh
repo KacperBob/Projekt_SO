@@ -38,6 +38,13 @@ stop_all_processes() {
     pkill -f ./pasazer 2>/dev/null
     pkill -f ./pasazerowie 2>/dev/null
 
+    # Sprawdzenie i wymuszenie zakończenia procesów korzystających z FIFO
+    echo "Sprawdzanie procesów korzystających z FIFO..."
+    lsof | grep fifo_boat | awk '{print $2}' | while read pid; do
+        echo "Zatrzymuję proces (PID: $pid) korzystający z FIFO..."
+        kill -9 "$pid" 2>/dev/null
+    done
+
     # Usuwanie segmentów pamięci współdzielonej
     echo "Usuwam segmenty pamięci współdzielonej..."
     ipcs -m | grep $(whoami) | awk '{print $2}' | while read shmid; do
@@ -50,7 +57,7 @@ stop_all_processes() {
         ipcrm -q "$msqid" 2>/dev/null
     done
 
-    # Usuwanie plików FIFO (jeśli istnieją)
+    # Usuwanie plików FIFO
     echo "Usuwam pliki FIFO..."
     rm -f fifo_boat1 fifo_boat2
 

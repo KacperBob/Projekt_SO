@@ -42,6 +42,20 @@ void cleanup(int signum) {
         perror("Nie można odłączyć pamięci współdzielonej dla pomostu 2");
     }
 
+    if (shmctl(shmid_pomost1, IPC_RMID, NULL) == -1) {
+        perror("Nie można usunąć pamięci współdzielonej dla pomostu 1");
+    }
+    if (shmctl(shmid_pomost2, IPC_RMID, NULL) == -1) {
+        perror("Nie można usunąć pamięci współdzielonej dla pomostu 2");
+    }
+
+    if (semctl(semid_pomost1, 0, IPC_RMID) == -1) {
+        perror("Nie można usunąć semafora dla pomostu 1");
+    }
+    if (semctl(semid_pomost2, 0, IPC_RMID) == -1) {
+        perror("Nie można usunąć semafora dla pomostu 2");
+    }
+
     exit(0);
 }
 
@@ -58,30 +72,31 @@ void semaphore_operation(int semid, int sem_num, int op) {
 }
 
 void start_trip(struct pomost_state *pomost, int *passengers_on_boat, int semid, const char *pomost_name) {
+    if (*passengers_on_boat == 0) {
+        printf("[%s] Sternik: Statek jest pusty, rejs nie może się rozpocząć.\n", pomost_name);
+        return;
+    }
+
     printf("[%s] Sternik: Rozpoczynam rejs. Liczba pasażerów na statku: %d.\n", pomost_name, *passengers_on_boat);
 
-    // Zamykanie pomostu przed rejsem
     semaphore_operation(semid, 0, -1);
     while (pomost->passengers_on_bridge > 0) {
-        printf("[%s] Sternik: Oczekiwanie, aż pomost się opróżni. Liczba pasażerów na pomoście: %d\n", pomost_name, pomost->passengers_on_bridge);
-        sleep(1); // Czekanie, aż pomost będzie pusty
+        printf("[%s] Sternik: Oczekiwanie, aż pomost się opróżni.\n", pomost_name);
+        sleep(1);
     }
-    pomost->direction = 0; // Pomost zablokowany
+    pomost->direction = 0;
 
-    // Rejs trwa określony czas
     sleep(TRIP_DURATION);
 
-    // Kończenie rejsu
     printf("[%s] Sternik: Rejs zakończony. Pasażerowie mogą schodzić.\n", pomost_name);
-    pomost->direction = -1; // Ustawienie pomostu na schodzenie
+    pomost->direction = -1;
     semaphore_operation(semid, 0, 1);
 
-    // Wypuszczenie pasażerów
     *passengers_on_boat = 0;
 }
 
 void control_pomost_and_boat(struct pomost_state *pomost, int *passengers_on_boat, int semid, int max_passengers, const char *fifo_path, const char *pomost_name, time_t *last_passenger_time) {
-    semaphore_operation(semid, 0, -1); // Wejście do sekcji krytycznej
+    semaphore_operation(semid, 0, -1);
 
     char buffer[256];
     int fifo_fd = open(fifo_path, O_RDONLY | O_NONBLOCK);
@@ -92,11 +107,10 @@ void control_pomost_and_boat(struct pomost_state *pomost, int *passengers_on_boa
     }
 
     while (read(fifo_fd, buffer, sizeof(buffer)) > 0) {
-        printf("[%s] Sternik otrzymał: %s\n", pomost_name, buffer);
         if (pomost->direction == 1) {
             if (*passengers_on_boat < max_passengers) {
                 (*passengers_on_boat)++;
-                *last_passenger_time = time(NULL); // Aktualizacja czasu ostatniego pasażera
+                *last_passenger_time = time(NULL);
                 printf("[%s] Sternik: Pasażer wsiada na statek. Liczba pasażerów na statku: %d.\n", pomost_name, *passengers_on_boat);
             } else {
                 printf("[%s] Sternik: Statek pełny, pasażer musi poczekać.\n", pomost_name);
@@ -105,10 +119,8 @@ void control_pomost_and_boat(struct pomost_state *pomost, int *passengers_on_boa
     }
 
     close(fifo_fd);
-    semaphore_operation(semid, 0, 1); // Wyjście z sekcji krytycznej
+    semaphore_operation(semid, 0, 1);
 
-    // Sprawdzenie warunków rozpoczęcia rejsu
-    printf("[%s] Sprawdzam warunki rejsu: Pasażerowie na statku: %d, Ostatni pasażer: %.0f sek. temu.\n", pomost_name, *passengers_on_boat, difftime(time(NULL), *last_passenger_time));
     if (*passengers_on_boat == max_passengers || difftime(time(NULL), *last_passenger_time) >= TIME_LIMIT) {
         start_trip(pomost, passengers_on_boat, semid, pomost_name);
     }
@@ -133,9 +145,9 @@ int main() {
     }
 
     pomost1->passengers_on_bridge = 0;
-    pomost1->direction = 1; // Domyślnie boarding
+    pomost1->direction = 1;
     pomost2->passengers_on_bridge = 0;
-    pomost2->direction = 1; // Domyślnie boarding
+    pomost2->direction = 1;
 
     semid_pomost1 = semget(SEM_KEY_POMOST1, 1, IPC_CREAT | 0666);
     semid_pomost2 = semget(SEM_KEY_POMOST2, 1, IPC_CREAT | 0666);
@@ -159,9 +171,8 @@ int main() {
     while (1) {
         control_pomost_and_boat(pomost1, &passengers_on_boat1, semid_pomost1, MAX_PASSENGERS_BOAT1, FIFO_BOAT1, "Pomost 1", &last_passenger_time_boat1);
         control_pomost_and_boat(pomost2, &passengers_on_boat2, semid_pomost2, MAX_PASSENGERS_BOAT2, FIFO_BOAT2, "Pomost 2", &last_passenger_time_boat2);
-        sleep(1); // Symulacja czasu przetwarzania
+        sleep(1);
     }
 
-    cleanup(0);
     return 0;
 }

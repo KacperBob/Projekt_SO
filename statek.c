@@ -13,10 +13,11 @@
 #define FIFO_PATH1 "fifo_boat1"
 #define FIFO_PATH2 "fifo_boat2"
 #define SHM_KEY_TIME 5678
+#define SHM_KEY_CAPACITY 8765
 #define TIME_SIZE 20
 
-#define MAX_SEATS_BOAT1 10
-#define MAX_SEATS_BOAT2 10
+#define MAX_SEATS_BOAT1 4
+#define MAX_SEATS_BOAT2 4
 
 int seats_boat1 = 0;
 int seats_boat2 = 0;
@@ -24,6 +25,7 @@ char *shared_time;
 int shmid_time;
 time_t last_passenger_time_boat1;
 time_t last_passenger_time_boat2;
+int *shared_capacities;
 
 void cleanup() {
     unlink(FIFO_PATH1);
@@ -31,6 +33,10 @@ void cleanup() {
     if (shared_time != NULL && shmdt(shared_time) == -1) {
         perror("Nie można odłączyć pamięci współdzielonej dla czasu");
     }
+    if (shared_capacities != NULL && shmdt(shared_capacities) == -1) {
+        perror("Nie można odłączyć pamięci współdzielonej dla pojemności");
+    }
+    shmctl(shmget(SHM_KEY_CAPACITY, 2 * sizeof(int), 0666), IPC_RMID, NULL);
     printf("FIFO files and shared memory removed.\n");
     exit(0);
 }
@@ -44,7 +50,7 @@ void process_fifo(int fd, const char *boat_name, int *current_seats, int max_sea
     memset(buffer, 0, sizeof(buffer));
     ssize_t bytes_read = read(fd, buffer, sizeof(buffer) - 1);
     if (bytes_read > 0) {
-        buffer[bytes_read] = '\0'; // Null-terminate the string 
+        buffer[bytes_read] = '\0'; // Null-terminate the string
         char current_time[TIME_SIZE];
         strncpy(current_time, shared_time, TIME_SIZE);
         current_time[TIME_SIZE - 1] = '\0';
@@ -76,6 +82,23 @@ void check_and_start_trip(const char *boat_name, int *current_seats, int max_sea
     }
 }
 
+void initialize_shared_memory() {
+    int shmid_capacities = shmget(SHM_KEY_CAPACITY, 2 * sizeof(int), IPC_CREAT | 0666);
+    if (shmid_capacities == -1) {
+        perror("Nie można utworzyć pamięci współdzielonej dla pojemności");
+        exit(1);
+    }
+
+    shared_capacities = (int *)shmat(shmid_capacities, NULL, 0);
+    if (shared_capacities == (int *)-1) {
+        perror("Nie można przyłączyć pamięci współdzielonej dla pojemności");
+        exit(1);
+    }
+
+    shared_capacities[0] = MAX_SEATS_BOAT1;
+    shared_capacities[1] = MAX_SEATS_BOAT2;
+}
+
 int main() {
     // Tworzenie pamięci współdzielonej dla czasu
     shmid_time = shmget(SHM_KEY_TIME, TIME_SIZE, 0666);
@@ -89,6 +112,8 @@ int main() {
         perror("Nie można przyłączyć pamięci współdzielonej dla czasu");
         exit(1);
     }
+
+    initialize_shared_memory();
 
     // Tworzenie FIFO
     if (mkfifo(FIFO_PATH1, 0666) == -1 && errno != EEXIST) {
