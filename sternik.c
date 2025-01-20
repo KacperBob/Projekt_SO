@@ -8,6 +8,7 @@
 #include <fcntl.h>
 #include <string.h>
 #include <signal.h>
+#include <time.h>
 
 #define SHM_KEY_POMOST1 7890
 #define SHM_KEY_POMOST2 7891
@@ -17,6 +18,8 @@
 #define FIFO_BOAT2 "fifo_boat2"
 #define MAX_PASSENGERS_BOAT1 50
 #define MAX_PASSENGERS_BOAT2 40
+#define TRIP_DURATION 5 // Czas trwania rejsu w sekundach
+#define TIME_LIMIT 20 // Limit czasu oczekiwania na pasażera w sekundach
 
 struct pomost_state {
     int passengers_on_bridge;
@@ -26,7 +29,8 @@ struct pomost_state {
 int shmid_pomost1, shmid_pomost2;
 int semid_pomost1, semid_pomost2;
 struct pomost_state *pomost1, *pomost2;
-int fifo_boat1, fifo_boat2;
+int passengers_on_boat1 = 0, passengers_on_boat2 = 0;
+time_t last_passenger_time_boat1, last_passenger_time_boat2;
 
 void cleanup(int signum) {
     printf("\nZwalnianie zasobów sternika...\n");
@@ -36,13 +40,6 @@ void cleanup(int signum) {
     }
     if (pomost2 != NULL && shmdt(pomost2) == -1) {
         perror("Nie można odłączyć pamięci współdzielonej dla pomostu 2");
-    }
-
-    if (fifo_boat1 >= 0) {
-        close(fifo_boat1);
-    }
-    if (fifo_boat2 >= 0) {
-        close(fifo_boat2);
     }
 
     exit(0);
@@ -60,7 +57,30 @@ void semaphore_operation(int semid, int sem_num, int op) {
     }
 }
 
-void control_pomost_and_boat(struct pomost_state *pomost, int semid, int max_passengers, const char *fifo_path, const char *pomost_name) {
+void start_trip(struct pomost_state *pomost, int *passengers_on_boat, int semid, const char *pomost_name) {
+    printf("[%s] Sternik: Rozpoczynam rejs. Liczba pasażerów na statku: %d.\n", pomost_name, *passengers_on_boat);
+
+    // Zamykanie pomostu przed rejsem
+    semaphore_operation(semid, 0, -1);
+    while (pomost->passengers_on_bridge > 0) {
+        printf("[%s] Sternik: Oczekiwanie, aż pomost się opróżni. Liczba pasażerów na pomoście: %d\n", pomost_name, pomost->passengers_on_bridge);
+        sleep(1); // Czekanie, aż pomost będzie pusty
+    }
+    pomost->direction = 0; // Pomost zablokowany
+
+    // Rejs trwa określony czas
+    sleep(TRIP_DURATION);
+
+    // Kończenie rejsu
+    printf("[%s] Sternik: Rejs zakończony. Pasażerowie mogą schodzić.\n", pomost_name);
+    pomost->direction = -1; // Ustawienie pomostu na schodzenie
+    semaphore_operation(semid, 0, 1);
+
+    // Wypuszczenie pasażerów
+    *passengers_on_boat = 0;
+}
+
+void control_pomost_and_boat(struct pomost_state *pomost, int *passengers_on_boat, int semid, int max_passengers, const char *fifo_path, const char *pomost_name, time_t *last_passenger_time) {
     semaphore_operation(semid, 0, -1); // Wejście do sekcji krytycznej
 
     char buffer[256];
@@ -74,22 +94,24 @@ void control_pomost_and_boat(struct pomost_state *pomost, int semid, int max_pas
     while (read(fifo_fd, buffer, sizeof(buffer)) > 0) {
         printf("[%s] Sternik otrzymał: %s\n", pomost_name, buffer);
         if (pomost->direction == 1) {
-            if (pomost->passengers_on_bridge < max_passengers) {
-                pomost->passengers_on_bridge++;
-                printf("[%s] Sternik: Pasażer wchodzi na pomost. Liczba pasażerów: %d.\n", pomost_name, pomost->passengers_on_bridge);
+            if (*passengers_on_boat < max_passengers) {
+                (*passengers_on_boat)++;
+                *last_passenger_time = time(NULL); // Aktualizacja czasu ostatniego pasażera
+                printf("[%s] Sternik: Pasażer wsiada na statek. Liczba pasażerów na statku: %d.\n", pomost_name, *passengers_on_boat);
             } else {
-                printf("[%s] Sternik: Pomost pełny, pasażer musi poczekać.\n", pomost_name);
-            }
-        } else if (pomost->direction == -1) {
-            if (pomost->passengers_on_bridge > 0) {
-                pomost->passengers_on_bridge--;
-                printf("[%s] Sternik: Pasażer opuszcza pomost. Liczba pasażerów: %d.\n", pomost_name, pomost->passengers_on_bridge);
+                printf("[%s] Sternik: Statek pełny, pasażer musi poczekać.\n", pomost_name);
             }
         }
     }
 
     close(fifo_fd);
     semaphore_operation(semid, 0, 1); // Wyjście z sekcji krytycznej
+
+    // Sprawdzenie warunków rozpoczęcia rejsu
+    printf("[%s] Sprawdzam warunki rejsu: Pasażerowie na statku: %d, Ostatni pasażer: %.0f sek. temu.\n", pomost_name, *passengers_on_boat, difftime(time(NULL), *last_passenger_time));
+    if (*passengers_on_boat == max_passengers || difftime(time(NULL), *last_passenger_time) >= TIME_LIMIT) {
+        start_trip(pomost, passengers_on_boat, semid, pomost_name);
+    }
 }
 
 int main() {
@@ -127,11 +149,16 @@ int main() {
         cleanup(0);
     }
 
+    passengers_on_boat1 = 0;
+    passengers_on_boat2 = 0;
+    last_passenger_time_boat1 = time(NULL);
+    last_passenger_time_boat2 = time(NULL);
+
     printf("Sternik kontroluje pomosty i statki.\n");
 
     while (1) {
-        control_pomost_and_boat(pomost1, semid_pomost1, MAX_PASSENGERS_BOAT1, FIFO_BOAT1, "Pomost 1");
-        control_pomost_and_boat(pomost2, semid_pomost2, MAX_PASSENGERS_BOAT2, FIFO_BOAT2, "Pomost 2");
+        control_pomost_and_boat(pomost1, &passengers_on_boat1, semid_pomost1, MAX_PASSENGERS_BOAT1, FIFO_BOAT1, "Pomost 1", &last_passenger_time_boat1);
+        control_pomost_and_boat(pomost2, &passengers_on_boat2, semid_pomost2, MAX_PASSENGERS_BOAT2, FIFO_BOAT2, "Pomost 2", &last_passenger_time_boat2);
         sleep(1); // Symulacja czasu przetwarzania
     }
 

@@ -100,6 +100,8 @@ void handle_passenger_with_dependant(const char *time, int parent_pid, int paren
         snprintf(fifo_message, sizeof(fifo_message), "Rodzic PID: %d, wiek: %d; Dziecko/Senior PID: %d, wiek: %d, statek: 2\n",
                  parent_pid, parent_age, dependant_pid, dependant_age);
         send_to_fifo(FIFO_BOAT2, fifo_message);
+        printf("Statek 2: Pasażer: Rodzic PID: %d, wiek: %d; Dziecko/Senior PID: %d, wiek: %d zajęli miejsce %d/10.\n",
+               parent_pid, parent_age, dependant_pid, dependant_age, (BOAT2_CAPACITY - boat2_available_seats));
     } else {
         printf("[%s] Kasjer: Pasażerowie (PID rodzica: %d, PID dziecka/seniora: %d) odrzuceni - brak miejsc na łodzi nr 2.\n",
                time, parent_pid, dependant_pid);
