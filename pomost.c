@@ -9,176 +9,167 @@
 #include <string.h>
 #include <signal.h>
 #include <time.h>
+#include <errno.h>
 
-#define SHM_KEY_POMOST1 7890
-#define SHM_KEY_POMOST2 7891
 #define SHM_KEY_TIME 5678
 #define TIME_SIZE 20
-#define SEM_KEY_POMOST1 4567
-#define SEM_KEY_POMOST2 4568
-#define FIFO_BOAT1 "fifo_boat1"
-#define FIFO_BOAT2 "fifo_boat2"
-#define MAX_PASSENGERS_BOAT1 50
-#define MAX_PASSENGERS_BOAT2 40
-#define TRIP_DURATION 5 // Czas trwania rejsu w sekundach
-#define TIME_LIMIT 20 // Limit czasu oczekiwania na pasażera w sekundach
+
+// Główne parametry (można dostosować wg potrzeb projektu)
+#define MAX_SEATS_BOAT1 4
+#define MAX_SEATS_BOAT2 4
+#define TRIP_DURATION   5
+#define TIME_LIMIT     20
+
+// Fifo, przez które pomost odbiera informacje np. od kasjera
+#define FIFO_BOAT1     "fifo_boat1"
+#define FIFO_BOAT2     "fifo_boat2"
+#define FIFO_POMOST    "fifo_pomost"
 
 struct pomost_state {
-    int passengers_on_bridge;
-    int direction; // 1 for boarding, -1 for leaving, 0 for idle
+    int passengers_on_bridge; 
+    int direction; // 1 – wchodzenie na statek, -1 – schodzenie ze statku, 0 – blokada
 };
 
-int shmid_pomost1, shmid_pomost2, shmid_time;
-int semid_pomost1, semid_pomost2;
-struct pomost_state *pomost1, *pomost2;
-char *shared_time;
-int passengers_on_boat1 = 0, passengers_on_boat2 = 0;
+int shmid_time=-1;
+char *shared_time=NULL;
+
+int passengers_boat1=0, passengers_boat2=0;
 time_t last_passenger_time_boat1, last_passenger_time_boat2;
+struct pomost_state pomost1, pomost2;
 
-void cleanup(int signum) {
-    printf("\nZwalnianie zasobów pomostu...\n");
-
-    if (pomost1 != NULL && shmdt(pomost1) == -1) {
-        perror("Nie można odłączyć pamięci współdzielonej dla pomostu 1");
-    }
-    if (pomost2 != NULL && shmdt(pomost2) == -1) {
-        perror("Nie można odłączyć pamięci współdzielonej dla pomostu 2");
-    }
-    if (shared_time != NULL && shmdt(shared_time) == -1) {
-        perror("Nie można odłączyć pamięci współdzielonej dla czasu");
-    }
-
+void cleanup(int signum){
+    if(shared_time!=NULL) shmdt(shared_time);
     exit(0);
 }
 
-void semaphore_operation(int semid, int sem_num, int op) {
-    struct sembuf sops;
-    sops.sem_num = sem_num;
-    sops.sem_op = op;
-    sops.sem_flg = 0;
-
-    if (semop(semid, &sops, 1) == -1) {
-        perror("Operacja semafora się nie powiodła");
-        exit(1);
-    }
+void pobierzCzas(char*b){
+    int id=shmget(SHM_KEY_TIME,TIME_SIZE,0666);
+    if(id<0){ snprintf(b,TIME_SIZE,"??:??:??"); return; }
+    char*c=(char*)shmat(id,NULL,0);
+    if(c==(char*)-1){ snprintf(b,TIME_SIZE,"??:??:??"); return; }
+    snprintf(b,TIME_SIZE,"%s",c);
+    shmdt(c);
 }
 
-void start_trip(struct pomost_state *pomost, int *passengers_on_boat, int semid, const char *pomost_name) {
-    printf("[%s] Sternik: Rozpoczynam rejs. Liczba pasażerów na statku: %d.\n", shared_time, *passengers_on_boat);
-
-    // Zamykanie pomostu przed rejsem
-    semaphore_operation(semid, 0, -1);
-    while (pomost->passengers_on_bridge > 0) {
-        printf("[%s] Sternik: Oczekiwanie, aż pomost się opróżni.\n", shared_time);
-        sleep(1); // Czekanie, aż pomost będzie pusty
-    }
-    pomost->direction = 0; // Pomost zablokowany
-
-    // Rejs trwa określony czas
-    sleep(TRIP_DURATION);
-
-    // Kończenie rejsu
-    printf("[%s] Sternik: Rejs zakończony. Pasażerowie mogą schodzić.\n", shared_time);
-    pomost->direction = -1; // Ustawienie pomostu na schodzenie
-    semaphore_operation(semid, 0, 1);
-
-    // Wypuszczenie pasażerów
-    *passengers_on_boat = 0;
+void logPomost(const char*s){
+    printf("%s",s);
+    fflush(stdout);
 }
 
-void control_pomost_and_boat(struct pomost_state *pomost, int *passengers_on_boat, int semid, int max_passengers, const char *fifo_path, const char *pomost_name, time_t *last_passenger_time) {
-    semaphore_operation(semid, 0, -1); // Wejście do sekcji krytycznej
-
-    char buffer[256];
-    int fifo_fd = open(fifo_path, O_RDONLY | O_NONBLOCK);
-    if (fifo_fd == -1) {
-        perror("Nie można otworzyć FIFO dla statku");
-        semaphore_operation(semid, 0, 1);
+void odczytZfifo(const char*fifo, int *passengers_on_boat, struct pomost_state *pom, int max_seats, time_t *last_pass_time, const char*whichBoat){
+    char buf[256];
+    int fd=open(fifo,O_RDONLY|O_NONBLOCK);
+    if(fd<0){
+        // Nie ma fifo albo nie da się otworzyć
         return;
     }
+    int r=0;
+    while((r=read(fd,buf,sizeof(buf)))>0){
+        // Buf może zawierać np. "[06:02:00] Kasjer: Pasazer PID:12345 wiek:30..."
+        // lub inny komunikat. My tylko sygnalizujemy, że ktoś wchodzi
+        // Odczyt jest 'luzny', bo faktyczna logika dopuszczenia pasażera
+        // jest uproszczona: pom->direction=1 => boarding
+        buf[r]='\0';
+        char czas[TIME_SIZE]; pobierzCzas(czas);
 
-    while (read(fifo_fd, buffer, sizeof(buffer)) > 0) {
-        printf("[%s] Sternik otrzymał: %s\n", shared_time, buffer);
-        if (pomost->direction == 1) {
-            if (*passengers_on_boat < max_passengers) {
+        if(pom->direction==1){
+            if(*passengers_on_boat<max_seats){
                 (*passengers_on_boat)++;
-                *last_passenger_time = time(NULL); // Aktualizacja czasu ostatniego pasażera
-                printf("[%s] Sternik: Pasażer wsiada na statek. Liczba pasażerów na statku: %d.\n", shared_time, *passengers_on_boat);
+                *last_pass_time=time(NULL);
+                char out[512];
+                snprintf(out,sizeof(out),"[%s] Pomost: %s – pasażer wchodzi na statek. Teraz jest %d/%d.\n",
+                         czas, whichBoat,*passengers_on_boat,max_seats);
+                logPomost(out);
             } else {
-                printf("[%s] Sternik: Statek pełny, pasażer musi poczekać.\n", shared_time);
+                char out[512];
+                snprintf(out,sizeof(out),"[%s] Pomost: %s pełny. Pasażer musi czekać.\n",
+                         czas, whichBoat);
+                logPomost(out);
             }
+        } else if(pom->direction==-1){
+            // Schodzenie ze statku
+            char out[512];
+            snprintf(out,sizeof(out),"[%s] Pomost: %s – pasażer opuszcza statek.\n",
+                     czas, whichBoat);
+            logPomost(out);
+            if(*passengers_on_boat>0){
+                (*passengers_on_boat)--;
+            }
+        } else {
+            // direction=0 => pomost zablokowany
+            char out[512];
+            snprintf(out,sizeof(out),"[%s] Pomost: %s – POMOST ZABLOKOWANY, pasażer nie przejdzie.\n",
+                     czas, whichBoat);
+            logPomost(out);
         }
     }
-
-    close(fifo_fd);
-    semaphore_operation(semid, 0, 1); // Wyjście z sekcji krytycznej
-
-    // Sprawdzenie warunków rozpoczęcia rejsu
-    if (*passengers_on_boat == max_passengers || difftime(time(NULL), *last_passenger_time) >= TIME_LIMIT) {
-        start_trip(pomost, passengers_on_boat, semid, pomost_name);
-    }
+    close(fd);
 }
 
-int main() {
-    signal(SIGINT, cleanup);
-    signal(SIGTERM, cleanup);
+void startTrip(struct pomost_state *pom, int *passengers_on_boat, const char*whichBoat){
+    char czas[TIME_SIZE];pobierzCzas(czas);
+    // Blokada pomostu
+    pom->direction=0;
+    char out[256];
+    snprintf(out,sizeof(out),"[%s] Pomost: Rozpoczynam rejs dla %s z %d pasażerami.\n",czas,whichBoat,*passengers_on_boat);
+    logPomost(out);
 
-    // Przyłączenie pamięci współdzielonej dla czasu
-    shmid_time = shmget(SHM_KEY_TIME, TIME_SIZE, 0666);
-    while (shmid_time == -1) {
-        perror("Nie można uzyskać dostępu do pamięci współdzielonej dla czasu");
-        sleep(1); // Oczekiwanie na utworzenie pamięci przez proces czasu
-        shmid_time = shmget(SHM_KEY_TIME, TIME_SIZE, 0666);
-    }
+    // Czas rejsu
+    sleep(TRIP_DURATION);
 
-    shared_time = (char *)shmat(shmid_time, NULL, 0);
-    if (shared_time == (char *)-1) {
-        perror("Nie można przyłączyć pamięci współdzielonej dla czasu");
-        cleanup(0);
-    }
+    pobierzCzas(czas);
+    snprintf(out,sizeof(out),"[%s] Pomost: Rejs %s zakończony. Ustawiam pomost na -1 (schodzenie).\n", czas, whichBoat);
+    logPomost(out);
 
-    shmid_pomost1 = shmget(SHM_KEY_POMOST1, sizeof(struct pomost_state), IPC_CREAT | 0666);
-    shmid_pomost2 = shmget(SHM_KEY_POMOST2, sizeof(struct pomost_state), IPC_CREAT | 0666);
-    if (shmid_pomost1 == -1 || shmid_pomost2 == -1) {
-        perror("Nie można utworzyć pamięci współdzielonej");
-        cleanup(0);
-    }
+    // Zezwalamy na schodzenie
+    pom->direction=-1;
+    // w realnej sytuacji pasażerowie wychodzą, co przechwyci odczytZfifo(...),
+    // tutaj możemy sztucznie wyzerować *passengers_on_boat = 0 w pętli
+    // lub czekać, aż "z czyjegoś side" nadejdzie info o opuszczaniu.
+    // Dla uproszczenia:
+    sleep(2);
+    *passengers_on_boat=0;
 
-    pomost1 = (struct pomost_state *)shmat(shmid_pomost1, NULL, 0);
-    pomost2 = (struct pomost_state *)shmat(shmid_pomost2, NULL, 0);
-    if (pomost1 == (void *)-1 || pomost2 == (void *)-1) {
-        perror("Nie można przyłączyć pamięci współdzielonej");
-        cleanup(0);
-    }
+    pobierzCzas(czas);
+    snprintf(out,sizeof(out),"[%s] Pomost: Wszyscy zeszli, pomost wraca do 1 (boarding).\n", czas);
+    logPomost(out);
 
-    pomost1->passengers_on_bridge = 0;
-    pomost1->direction = 1; // Domyślnie boarding
-    pomost2->passengers_on_bridge = 0;
-    pomost2->direction = 1; // Domyślnie boarding
+    // Ponownie otwieramy do wchodzenia
+    pom->direction=1;
+}
 
-    semid_pomost1 = semget(SEM_KEY_POMOST1, 1, IPC_CREAT | 0666);
-    semid_pomost2 = semget(SEM_KEY_POMOST2, 1, IPC_CREAT | 0666);
-    if (semid_pomost1 == -1 || semid_pomost2 == -1) {
-        perror("Nie można utworzyć semaforów");
-        cleanup(0);
-    }
+int main(){
+    signal(SIGINT,cleanup);
+    signal(SIGTERM,cleanup);
 
-    if (semctl(semid_pomost1, 0, SETVAL, 1) == -1 || semctl(semid_pomost2, 0, SETVAL, 1) == -1) {
-        perror("Nie można ustawić wartości semaforów");
-        cleanup(0);
-    }
+    pomost1.passengers_on_bridge=0; 
+    pomost1.direction=1; // wchodzenie
+    pomost2.passengers_on_bridge=0; 
+    pomost2.direction=1;
 
-    passengers_on_boat1 = 0;
-    passengers_on_boat2 = 0;
-    last_passenger_time_boat1 = time(NULL);
-    last_passenger_time_boat2 = time(NULL);
+    passengers_boat1=0;
+    passengers_boat2=0;
+    last_passenger_time_boat1=time(NULL);
+    last_passenger_time_boat2=time(NULL);
 
-    printf("Sternik kontroluje pomosty i statki.\n");
+    printf("Pomost uruchomiony. Obsługujemy boat1 i boat2.\n");
 
-    while (1) {
-        control_pomost_and_boat(pomost1, &passengers_on_boat1, semid_pomost1, MAX_PASSENGERS_BOAT1, FIFO_BOAT1, "Pomost 1", &last_passenger_time_boat1);
-        control_pomost_and_boat(pomost2, &passengers_on_boat2, semid_pomost2, MAX_PASSENGERS_BOAT2, FIFO_BOAT2, "Pomost 2", &last_passenger_time_boat2);
-        sleep(1); // Symulacja czasu przetwarzania
+    while(1){
+        odczytZfifo(FIFO_BOAT1,&passengers_boat1,&pomost1,MAX_SEATS_BOAT1,&last_passenger_time_boat1,"Boat1");
+        odczytZfifo(FIFO_BOAT2,&passengers_boat2,&pomost2,MAX_SEATS_BOAT2,&last_passenger_time_boat2,"Boat2");
+
+        // Sprawdzamy, czy warto wystartować rejs (np. zapełniony statek lub upłynął TIME_LIMIT)
+        if(passengers_boat1>=MAX_SEATS_BOAT1 || difftime(time(NULL),last_passenger_time_boat1)>=TIME_LIMIT){
+            if(passengers_boat1>0 && pomost1.direction==1){
+                startTrip(&pomost1,&passengers_boat1,"Boat1");
+            }
+        }
+        if(passengers_boat2>=MAX_SEATS_BOAT2 || difftime(time(NULL),last_passenger_time_boat2)>=TIME_LIMIT){
+            if(passengers_boat2>0 && pomost2.direction==1){
+                startTrip(&pomost2,&passengers_boat2,"Boat2");
+            }
+        }
+        sleep(1);
     }
 
     cleanup(0);

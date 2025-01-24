@@ -1,0 +1,174 @@
+[06:02:00] Kasjer: Pasazerowie o PIDach : 1308632 i 1308636 zaplacili: 40.00 i zostali odeslani na statek 2. Liczba pozostalych miejsc na statku: 8
+[06:24:00] Kasjer: Pasazerowie o PIDach : 1308662 i 1308674 zaplacili: 40.00 i zostali odeslani na statek 2. Liczba pozostalych miejsc na statku: 6
+[06:00:00] Kasjer: Odebrano (mtype=1) '1 1312795 34'
+[06:03:00] Kasjer: Odebrano (mtype=1) '1 1312886 69'
+[06:06:00] Kasjer: Odebrano (mtype=1) '1 1312934 57'
+[06:09:00] Kasjer: Odebrano (mtype=1) '1 1313014 57'
+[06:00:00] Kasjer: Pasazer PID: 1314220 wiek: 62 zaplacil: 20.00 i zostal wyslany na statek: 1. Liczba pozostalych miejsc na statku: 3
+[06:03:00] Kasjer: Pasazer PID: 1314230 wiek: 43 zaplacil: 20.00 i zostal wyslany na statek: 1. Liczba pozostalych miejsc na statku: 2
+[06:06:00] Kasjer: Pasazer PID: 1314233 wiek: 60 zaplacil: 20.00 i zostal wyslany na statek: 1. Liczba pozostalych miejsc na statku: 1
+[06:09:00] Kasjer: Pasazer PID: 1314236 wiek: 57 zaplacil: 20.00 i zostal wyslany na statek: 1. Liczba pozostalych miejsc na statku: 0
+[06:12:00] Kasjer: Pasazer PID: 1314239 wiek: 25 zaplacil: 20.00 i zostal wyslany na statek: 2. Liczba pozostalych miejsc na statku: 3
+[06:15:00] Kasjer: Pasazer PID: 1314241 wiek: 43 zaplacil: 20.00 i zostal wyslany na statek: 2. Liczba pozostalych miejsc na statku: 2
+[06:18:00] Kasjer: Pasazer PID: 1314245 wiek: 44 zaplacil: 20.00 i zostal wyslany na statek: 2. Liczba pozostalych miejsc na statku: 1
+[06:21:00] Kasjer: Pasazer PID: 1314249 wiek: 53 zaplacil: 20.00 i zostal wyslany na statek: 2. Liczba pozostalych miejsc na statku: 0
+[06:00:00] Kasjer: Pasazer PID: 1314849 wiek: 59 zaplacil: 20.00 i zostal wyslany na statek: 1. Liczba pozostalych miejsc na statku: 3
+[06:03:00] Kasjer: Pasazer PID: 1314851 wiek: 50 zaplacil: 20.00 i zostal wyslany na statek: 1. Liczba pozostalych miejsc na statku: 2
+[06:06:00] Kasjer: Pasazer PID: 1314857 wiek: 23 zaplacil: 20.00 i zostal wyslany na statek: 1. Liczba pozostalych miejsc na statku: 1
+[06:09:00] Kasjer: Pasazer PID: 1314862 wiek: 45 zaplacil: 20.00 i zostal wyslany na statek: 1. Liczba pozostalych miejsc na statku: 0
+[06:12:00] Kasjer: Pasazer PID: 1314866 wiek: 29 zaplacil: 20.00 i zostal wyslany na statek: 2. Liczba pozostalych miejsc na statku: 3
+[06:15:00] Kasjer: Pasazer PID: 1314868 wiek: 41 zaplacil: 20.00 i zostal wyslany na statek: 2. Liczba pozostalych miejsc na statku: 2
+[06:00:00] Kasjer: Pasazer PID: 1317101 wiek: 41 zaplacil: 20.00 i zostal wyslany na statek: 1. Liczba pozostalych miejsc na statku: 3
+[06:03:00] Kasjer: Pasazer PID: 1317160 wiek: 22 zaplacil: 20.00 i zostal wyslany na statek: 1. Liczba pozostalych miejsc na statku: 2
+[06:06:00] Kasjer: Pasazer PID: 1317205 wiek: 39 zaplacil: 20.00 i zostal wyslany na statek: 1. Liczba pozostalych miejsc na statku: 1
+[06:09:00] Kasjer: Pasazer PID: 1317208 wiek: 67 zaplacil: 20.00 i zostal wyslany na statek: 1. Liczba pozostalych miejsc na statku: 0
+[06:12:00] Kasjer: Pasazer PID: 1317212 wiek: 15 zaplacil: 20.00 i zostal wyslany na statek: 2. Liczba pozostalych miejsc na statku: 3
+[06:15:00] Kasjer: Pasazer PID: 1317215 wiek: 36 zaplacil: 20.00 i zostal wyslany na statek: 2. Liczba pozostalych miejsc na statku: 2
+[06:18:00] Kasjer: Pasazer PID: 1317218 wiek: 29 zaplacil: 20.00 i zostal wyslany na statek: 2. Liczba pozostalych miejsc na statku: 1
+[06:21:00] Kasjer: Pasazer PID: 1317220 wiek: 44 zaplacil: 20.00 i zostal wyslany na statek: 2. Liczba pozostalych miejsc na statku: 0
+[06:24:00] Kasjer: Brak miejsc dla pasazera PID:1317223.
+[06:00:00] Kasjer: Pasazer PID: 1317585 wiek: 28 zaplacil: 20.00 i zostal wyslany na statek: 1. Liczba pozostalych miejsc na statku: 3
+[06:03:00] Kasjer: Pasazer PID: 1317633 wiek: 49 zaplacil: 20.00 i zostal wyslany na statek: 1. Liczba pozostalych miejsc na statku: 2
+[06:06:00] Kasjer: Pasazer PID: 1317635 wiek: 55 zaplacil: 20.00 i zostal wyslany na statek: 1. Liczba pozostalych miejsc na statku: 1
+[06:09:00] Kasjer: Pasazer PID: 1317638 wiek: 72 zaplacil: 20.00 i zostal wyslany na statek: 2. Liczba pozostalych miejsc na statku: 3
+[06:12:00] Kasjer: Pasazer PID: 1317641 wiek: 23 zaplacil: 20.00 i zostal wyslany na statek: 1. Liczba pozostalych miejsc na statku: 0
+[06:15:00] Kasjer: Pasazer PID: 1317644 wiek: 46 zaplacil: 20.00 i zostal wyslany na statek: 2. Liczba pozostalych miejsc na statku: 2
+[06:17:00] Kasjer: Pasazer (2 rejs) PID:1317641 wiek:23 zaplacil:10.00 statek:2 wolne:2
+[06:18:00] Kasjer: Pasazer PID: 1317647 wiek: 51 zaplacil: 20.00 i zostal wyslany na statek: 2. Liczba pozostalych miejsc na statku: 1
+[06:21:00] Kasjer: Pasazer PID: 1317650 wiek: 74 zaplacil: 20.00 i zostal wyslany na statek: 2. Liczba pozostalych miejsc na statku: 0
+[06:00:00] Kasjer: Pasazer PID:1318006 wiek:19 zaplacil:20.00 i zostal wyslany na statek:1. Liczba pozostalych miejsc na statku:3
+[06:03:00] Kasjer: Pasazer PID:1318011 wiek:25 zaplacil:20.00 i zostal wyslany na statek:1. Liczba pozostalych miejsc na statku:2
+[06:06:00] Kasjer: Pasazer PID:1318014 wiek:52 zaplacil:20.00 i zostal wyslany na statek:1. Liczba pozostalych miejsc na statku:1
+[06:09:00] Kasjer: Pasazer PID:1318016 wiek:61 zaplacil:20.00 i zostal wyslany na statek:1. Liczba pozostalych miejsc na statku:0
+[06:12:00] Kasjer: Pasazer PID:1318018 wiek:73 zaplacil:20.00 i zostal wyslany na statek:2. Liczba pozostalych miejsc na statku:3
+[06:15:00] Kasjer: Pasazer PID:1318022 wiek:40 zaplacil:20.00 i zostal wyslany na statek:2. Liczba pozostalych miejsc na statku:2
+[06:18:00] Kasjer: Pasazer PID:1318025 wiek:62 zaplacil:20.00 i zostal wyslany na statek:2. Liczba pozostalych miejsc na statku:1
+[06:21:00] Kasjer: Pasazer PID:1318028 wiek:55 zaplacil:20.00 i zostal wyslany na statek:2. Liczba pozostalych miejsc na statku:0
+[06:24:00] Kasjer: Brak miejsc dla pasazera PID:1318031.
+[06:00:00] Kasjer: Pasazer PID:1318086 wiek:44 zaplacil:20.00 i zostal wyslany na statek:1. Liczba pozostalych miejsc na statku:3
+[06:03:00] Kasjer: Pasazer PID:1318088 wiek:67 zaplacil:20.00 i zostal wyslany na statek:1. Liczba pozostalych miejsc na statku:2
+[06:03:00] Kasjer: Pasazerowie PID:1318088 i 1318090 zaplacili:40.00 i zostali odeslani na statek:2. Liczba pozostalych miejsc na statku:2
+[06:06:00] Kasjer: Pasazer PID:1318095 wiek:56 zaplacil:20.00 i zostal wyslany na statek:1. Liczba pozostalych miejsc na statku:1
+[06:09:00] Kasjer: Pasazer PID:1318100 wiek:17 zaplacil:20.00 i zostal wyslany na statek:1. Liczba pozostalych miejsc na statku:0
+[06:12:00] Kasjer: Pasazer PID:1318102 wiek:23 zaplacil:20.00 i zostal wyslany na statek:2. Liczba pozostalych miejsc na statku:1
+[06:12:00] Kasjer: Brak miejsc dla pasazerow PID:1318102 i 1318104.
+[06:15:00] Kasjer: Pasazer PID:1318108 wiek:69 zaplacil:20.00 i zostal wyslany na statek:2. Liczba pozostalych miejsc na statku:0
+[06:18:00] Kasjer: Brak miejsc dla pasazera PID:1318115.
+[06:18:00] Kasjer: Brak miejsc dla pasazerow PID:1318115 i 1318117.
+[06:21:00] Kasjer: Brak miejsc dla pasazera PID:1318118.
+[06:24:00] Kasjer: Brak miejsc dla pasazera PID:1318120.
+[06:27:00] Kasjer: Brak miejsc dla pasazera PID:1318122.
+[06:30:00] Kasjer: Brak miejsc dla pasazera PID:1318124.
+[06:30:00] Kasjer: Brak miejsc dla pasazerow PID:1318124 i 1318126.
+[06:33:00] Kasjer: Brak miejsc dla pasazera PID:1318127.
+[06:33:00] Kasjer: Brak miejsc dla pasazerow PID:1318127 i 1318129.
+[06:36:00] Kasjer: Brak miejsc dla pasazera PID:1318130.
+[06:00:00] Kasjer: Pasazer PID:1318781 wiek:51 zaplacil:20.00 i zostal wyslany na statek:1. Liczba pozostalych miejsc na statku:3
+[06:00:00] Kasjer: Pasazerowie PID:1318781 i 1318783 zaplacili:20.00 i zostali odeslani na statek:2. Liczba pozostalych miejsc na statku:2
+[06:03:00] Kasjer: Pasazer PID:1318799 wiek:16 zaplacil:20.00 i zostal wyslany na statek:1. Liczba pozostalych miejsc na statku:2
+[06:03:00] Kasjer: Pasazerowie PID:1318799 i 1318801 zaplacili:20.00 i zostali odeslani na statek:2. Liczba pozostalych miejsc na statku:0
+[06:06:00] Kasjer: Pasazer PID:1318814 wiek:48 zaplacil:20.00 i zostal wyslany na statek:1. Liczba pozostalych miejsc na statku:1
+[06:06:00] Kasjer: Brak miejsc dla pasazerow PID:1318814 i 1318816.
+[06:09:00] Kasjer: Pasazer PID:1318822 wiek:31 zaplacil:20.00 i zostal wyslany na statek:1. Liczba pozostalych miejsc na statku:0
+[06:09:00] Kasjer: Brak miejsc dla pasazerow PID:1318822 i 1318824.
+[06:12:00] Kasjer: Brak miejsc dla pasazera PID:1318950.
+[06:15:00] Kasjer: Brak miejsc dla pasazera PID:1319035.
+[06:15:00] Kasjer: Brak miejsc dla pasazerow PID:1319035 i 1319037.
+[06:18:00] Kasjer: Brak miejsc dla pasazera PID:1319047.
+[06:21:00] Kasjer: Brak miejsc dla pasazera PID:1319052.
+[06:00:00] Kasjer: Pasazer PID:1320599 wiek:54 zaplacil:20.00 i zostal wyslany na statek:1. Liczba pozostalych miejsc na statku:3
+[06:00:00] Kasjer: Pasazerowie PID:1320599 i 1320601 zaplacili:20.00 i zostali odeslani na statek:2. Liczba pozostalych miejsc na statku:2
+[06:03:00] Kasjer: Pasazer PID:1320640 wiek:18 zaplacil:20.00 i zostal wyslany na statek:1. Liczba pozostalych miejsc na statku:2
+[06:03:00] Kasjer: Pasazerowie PID:1320640 i 1320642 zaplacili:30.00 i zostali odeslani na statek:2. Liczba pozostalych miejsc na statku:0
+[06:06:00] Kasjer: Pasazer PID:1320674 wiek:46 zaplacil:20.00 i zostal wyslany na statek:1. Liczba pozostalych miejsc na statku:1
+[06:09:00] Kasjer: Pasazer PID:1320711 wiek:33 zaplacil:20.00 i zostal wyslany na statek:1. Liczba pozostalych miejsc na statku:0
+[06:09:00] Kasjer: Brak miejsc dla pasazerow PID:1320711 i 1320713.
+[06:12:00] Kasjer: Brak miejsc dla pasazera PID:1320768.
+[06:12:00] Kasjer: Brak miejsc dla pasazerow PID:1320768 i 1320770.
+[06:15:00] Kasjer: Brak miejsc dla pasazera PID:1320800.
+Kasjer uruchomiony. Oczekuję na pasażerów i komunikaty.
+[06:00:00] Kasjer: Pasażer PID: 1340216, wiek: 30, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku: 3
+[06:00:00] Kasjer: Pasażerowie PID:1340216 i PID:1340218, zapłacili: 30.00 i zostali wysłani na statek:2. Wolne miejsca na statku: 2
+[06:03:00] Kasjer: Pasażer PID: 1340279, wiek: 56, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku: 2
+[06:06:00] Kasjer: Pasażer PID: 1340309, wiek: 19, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku: 1
+[06:09:00] Kasjer: Pasażer PID: 1340366, wiek: 23, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku: 0
+[06:12:00] Kasjer: Pasażer PID: 1340374, wiek: 71, zapłacił: 20.00 i został wysłany na statek: 2. Wolne miejsca na statku: 1
+[06:15:00] Kasjer: Pasażer PID: 1340418, wiek: 27, zapłacił: 20.00 i został wysłany na statek: 2. Wolne miejsca na statku: 0
+[06:15:00] Kasjer: Brak miejsc dla pasażerów PID:1340418 i PID:1340420.
+[06:17:00] Kasjer: Brak miejsc (2 rejs) dla PID:1340418.
+[06:18:00] Kasjer: Brak miejsc dla pasażera PID:1340443.
+[06:18:00] Kasjer: Brak miejsc dla pasażerów PID:1340443 i PID:1340445.
+Kasjer uruchomiony. Oczekuję na pasażerów i komunikaty.
+[06:00:00] Kasjer: Brak miejsc dla pasażera PID:1340710.
+[06:00:00] Kasjer: Brak miejsc dla pasażerów PID:1340710 i PID:1340712.
+[06:03:00] Kasjer: Brak miejsc dla pasażera PID:1340713.
+[06:06:00] Kasjer: Brak miejsc dla pasażera PID:1340717.
+[06:09:00] Kasjer: Brak miejsc dla pasażera PID:1340719.
+Kasjer uruchomiony. Oczekuję na pasażerów i komunikaty.
+[06:00:00] Kasjer: Pasażer PID: 1340763, wiek: 74, zapłacił: 20.00 i został wysłany na statek: 2. Wolne miejsca na statku: 3
+[06:03:00] Kasjer: Pasażer (2 rejs) PID:1340763, wiek: 74, zapłacił: 10.00, statek: 1, wolne miejsca: 3
+[06:03:00] Kasjer: Pasażer PID: 1340765, wiek: 19, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku: 2
+[06:03:00] Kasjer: Pasażerowie PID:1340765 i PID:1340767, zapłacili: 20.00 i zostali wysłani na statek:2. Wolne miejsca na statku: 1
+[06:06:00] Kasjer: Pasażer PID: 1340768, wiek: 59, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku: 1
+[06:06:00] Kasjer: Brak miejsc dla pasażerów PID:1340768 i PID:1340770.
+[06:09:00] Kasjer: Pasażer PID: 1340771, wiek: 19, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku: 0
+[06:12:00] Kasjer: Pasażer (2 rejs) PID:1340771, wiek: 19, zapłacił: 10.00, statek: 2, wolne miejsca: 0
+[06:12:00] Kasjer: Brak miejsc dla pasażera PID:1340774.
+[06:15:00] Kasjer: Brak miejsc dla pasażera PID:1340776.
+[06:17:00] Kasjer: Brak miejsc (2 rejs) dla PID:1340774.
+[06:18:00] Kasjer: Brak miejsc dla pasażera PID:1340778.
+[06:18:00] Kasjer: Brak miejsc dla pasażerów PID:1340778 i PID:1340780.
+[06:20:00] Kasjer: Brak miejsc (2 rejs) dla PID:1340778.
+[06:21:00] Kasjer: Brak miejsc dla pasażera PID:1340781.
+[06:21:00] Kasjer: Brak miejsc dla pasażerów PID:1340781 i PID:1340783.
+[06:24:00] Kasjer: Brak miejsc dla pasażera PID:1340784.
+[06:24:00] Kasjer: Brak miejsc dla pasażerów PID:1340784 i PID:1340786.
+[06:27:00] Kasjer: Brak miejsc dla pasażera PID:1340787.
+Kasjer uruchomiony. Oczekuję na pasażerów i komunikaty.
+[06:00:00] Kasjer: Brak miejsc dla pasażera PID:1343501.
+[06:03:00] Kasjer: Brak miejsc dla pasażera PID:1343883.
+[06:06:00] Kasjer: Brak miejsc dla pasażera PID:1344341.
+[06:06:00] Kasjer: Brak miejsc dla pasażerów PID:1344341 i PID:1344343.
+[06:09:00] Kasjer: Brak miejsc dla pasażera PID:1345228.
+[06:12:00] Kasjer: Brak miejsc dla pasażera PID:1345745.
+[06:12:00] Kasjer: Brak miejsc dla pasażerów PID:1345745 i PID:1345747.
+[06:15:00] Kasjer: Brak miejsc dla pasażera PID:1346298.
+kasjer: Inicjalizuję pamięć współdzieloną dla pojemności statków.
+Kasjer uruchomiony. Oczekuję na pasażerów i komunikaty.
+[06:00:00] Kasjer: Pasażer PID: 1358743, wiek: 17, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku: 3.
+[06:03:00] Kasjer: Pasażer PID: 1359966, wiek: 30, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku: 2.
+[06:03:00] Kasjer: Pasażerowie PID:1359966 i PID:1359968, zapłacili: 40.00 i zostali wysłani na statek:2. Wolne miejsca na statku: 2.
+[06:06:00] Kasjer: Pasażer PID: 1360256, wiek: 17, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku: 1.
+[06:09:00] Kasjer: Pasażer PID: 1360325, wiek: 48, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku: 0.
+[06:12:00] Kasjer: Pasażer PID: 1360425, wiek: 64, zapłacił: 20.00 i został wysłany na statek: 2. Wolne miejsca na statku: 1.
+[06:12:00] Kasjer: Brak miejsc dla pasażerów PID:1360425 i PID:1360427.
+[06:15:00] Kasjer: Pasażer PID: 1360612, wiek: 25, zapłacił: 20.00 i został wysłany na statek: 2. Wolne miejsca na statku: 0.
+[06:15:00] Kasjer: Brak miejsc dla pasażerów PID:1360612 i PID:1360614.
+[06:18:00] Kasjer: Brak miejsc dla pasażera PID:1360663.
+kasjer: Inicjalizuję pamięć współdzieloną dla pojemności statków.
+Kasjer uruchomiony. Oczekuję na pasażerów i komunikaty.
+[06:00:00] Kasjer: Pasażer PID: 1381861, wiek: 62, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku: 3.
+[06:03:00] Kasjer: Pasażer PID: 1381951, wiek: 16, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku: 2.
+[06:06:00] Kasjer: Pasażer PID: 1382021, wiek: 49, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku: 1.
+[06:09:00] Kasjer: Pasażer PID: 1382093, wiek: 33, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku: 0.
+[06:12:00] Kasjer: Pasażer PID: 1382127, wiek: 18, zapłacił: 20.00 i został wysłany na statek: 2. Wolne miejsca na statku: 3.
+[06:15:00] Kasjer: Pasażer PID: 1382263, wiek: 27, zapłacił: 20.00 i został wysłany na statek: 2. Wolne miejsca na statku: 2.
+[06:18:00] Kasjer: Pasażer PID: 1382592, wiek: 69, zapłacił: 20.00 i został wysłany na statek: 2. Wolne miejsca na statku: 1.
+[06:21:00] Kasjer: Pasażer PID: 1382804, wiek: 51, zapłacił: 20.00 i został wysłany na statek: 2. Wolne miejsca na statku: 0.
+[06:24:00] Kasjer: Brak miejsc dla pasażera PID:1383341.
+[06:27:00] Kasjer: Brak miejsc dla pasażera PID:1383664.
+kasjer: Inicjalizuję pamięć współdzieloną dla pojemności statków.
+Kasjer uruchomiony. Oczekuję na pasażerów i komunikaty.
+[06:00:00] Kasjer: Pasażer PID: 1400399, wiek: 32, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku: 3.
+[06:03:00] Kasjer: Pasażer PID: 1400431, wiek: 38, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku: 2.
+[06:03:00] Kasjer: Pasażerowie PID:1400431 i PID:1400433, zapłacili: 30.00 i zostali wysłani na statek:2. Wolne miejsca na statku: 2.
+[06:06:00] Kasjer: Pasażer PID: 1400484, wiek: 15, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku: 1.
+[06:09:00] Kasjer: Pasażer PID: 1400548, wiek: 48, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku: 0.
+[06:12:00] Kasjer: Pasażer PID: 1400597, wiek: 33, zapłacił: 20.00 i został wysłany na statek: 2. Wolne miejsca na statku: 1.
+[06:15:00] Kasjer: Pasażer PID: 1400656, wiek: 44, zapłacił: 20.00 i został wysłany na statek: 2. Wolne miejsca na statku: 0.
+[06:18:00] Kasjer: Brak miejsc dla pasażera PID:1400722.
+kasjer: Inicjalizuję pamięć współdzieloną dla pojemności statków.
+Kasjer uruchomiony. Oczekuję na pasażerów i komunikaty.
+[06:00:00] Kasjer: Pasażer PID: 2121861, wiek: 67, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku: 3.
+[06:03:00] Kasjer: Pasażer PID: 2121863, wiek: 74, zapłacił: 20.00 i został wysłany na statek: 2. Wolne miejsca na statku: 3.
+[06:06:00] Kasjer: Pasażer PID: 2121865, wiek: 34, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku: 2.

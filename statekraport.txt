@@ -1,0 +1,92 @@
+Statek uruchomiony. Czeka na pasażerów i polecenia sternika.
+[06:03:00] Statek 1: Otrzymano komunikat: [06:03:00] Kasjer: Pasażer PID: 1340279, wiek: 56, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku: 2
+
+[06:03:00] Statek 1: Niepoprawny format komunikatu: [06:03:00] Kasjer: Pasażer PID: 1340279, wiek: 56, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku: 2
+
+[06:03:00] Statek 1: Otrzymano polecenie od sternika: [06:03:00] Kasjer: Pasażer PID: 1340279, wiek: 56, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku:
+[06:03:00] Statek 1: Otrzymano polecenie od sternika:  2
+
+[06:06:00] Statek 1: Otrzymano komunikat: [06:06:00] Kasjer: Pasażer PID: 1340309, wiek: 19, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku: 1
+
+[06:06:00] Statek 1: Niepoprawny format komunikatu: [06:06:00] Kasjer: Pasażer PID: 1340309, wiek: 19, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku: 1
+
+[06:06:00] Statek 1: Otrzymano polecenie od sternika: [06:06:00] Kasjer: Pasażer PID: 1340309, wiek: 19, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku:
+[06:06:00] Statek 1: Otrzymano polecenie od sternika:  1
+
+[06:09:00] Statek 1: Otrzymano komunikat: [06:09:00] Kasjer: Pasażer PID: 1340366, wiek: 23, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku: 0
+
+[06:09:00] Statek 1: Niepoprawny format komunikatu: [06:09:00] Kasjer: Pasażer PID: 1340366, wiek: 23, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku: 0
+
+[06:09:00] Statek 1: Otrzymano polecenie od sternika: [06:09:00] Kasjer: Pasażer PID: 1340366, wiek: 23, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku:
+[06:09:00] Statek 1: Otrzymano polecenie od sternika:  0
+
+[06:12:00] Statek 2: Otrzymano komunikat: [06:12:00] Kasjer: Pasażer PID: 1340374, wiek: 71, zapłacił: 20.00 i został wysłany na statek: 2. Wolne miejsca na statku: 1
+
+[06:12:00] Statek 2: Niepoprawny format komunikatu: [06:12:00] Kasjer: Pasażer PID: 1340374, wiek: 71, zapłacił: 20.00 i został wysłany na statek: 2. Wolne miejsca na statku: 1
+
+[06:12:00] Statek 2: Otrzymano polecenie od sternika: [06:12:00] Kasjer: Pasażer PID: 1340374, wiek: 71, zapłacił: 20.00 i został wysłany na statek: 2. Wolne miejsca na statku:
+[06:12:00] Statek 2: Otrzymano polecenie od sternika:  1
+
+[06:15:00] Statek 2: Otrzymano komunikat: [06:15:00] Kasjer: Pasażer PID: 1340418, wiek: 27, zapłacił: 20.00 i został wysłany na statek: 2. Wolne miejsca na statku: 0
+
+[06:15:00] Statek 2: Niepoprawny format komunikatu: [06:15:00] Kasjer: Pasażer PID: 1340418, wiek: 27, zapłacił: 20.00 i został wysłany na statek: 2. Wolne miejsca na statku: 0
+
+[06:15:00] Statek 2: Otrzymano polecenie od sternika: [06:15:00] Kasjer: Pasażer PID: 1340418, wiek: 27, zapłacił: 20.00 i został wysłany na statek: 2. Wolne miejsca na statku:
+[06:15:00] Statek 2: Otrzymano polecenie od sternika:  0
+
+Statek uruchomiony. Czeka na pasażerów i polecenia sternika.
+Statek uruchomiony. Czeka na pasażerów i polecenia sternika.
+[06:00:00] Statek 1: Rozpoczynam rejs z 4 pasażerami.
+[06:05:00] Statek 1: Rejs zakończony. Pasażerowie mogą schodzić.
+[06:05:00] Statek 2: Rozpoczynam rejs z 4 pasażerami.
+[06:10:00] Statek 2: Rejs zakończony. Pasażerowie mogą schodzić.
+[06:10:00] Statek 1: Otrzymano komunikat: [06:03:00] Kasjer: Pasażer (2 rejs) PID:1340763, wiek: 74, zapłacił: 10.00, statek: 1, wolne miejsca: 3
+
+[06:10:00] Statek 1: Niepoprawny format komunikatu: [06:03:00] Kasjer: Pasażer (2 rejs) PID:1340763, wiek: 74, zapłacił: 10.00, statek: 1, wolne miejsca: 3
+
+[06:10:00] Statek 2: Otrzymano komunikat: [06:00:00] Kasjer: Pasażer PID: 1340763, wiek: 74, zapłacił: 20.00 i został wysłany na statek: 2. Wolne miejsca na statku: 3
+
+[06:10:00] Statek 2: Niepoprawny format komunikatu: [06:00:00] Kasjer: Pasażer PID: 1340763, wiek: 74, zapłacił: 20.00 i został wysłany na statek: 2. Wolne miejsca na statku: 3
+
+[06:10:00] Statek 1: Otrzymano polecenie od sternika: [06:03:00] Kasjer: Pasażer (2 rejs) PID:1340763, wiek: 74, zapłacił: 10.00, statek: 1, wolne miejsca: 3
+
+[06:10:00] Statek 2: Otrzymano polecenie od sternika: [06:00:00] Kasjer: Pasażer PID: 1340763, wiek: 74, zapłacił: 20.00 i został wysłany na statek: 2. Wolne miejsca na statku:
+[06:10:00] Statek 1: Otrzymano polecenie od sternika: Pasażer PID: 1340765, wiek: 19, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku: 2
+
+[06:10:00] Statek 2: Otrzymano polecenie od sternika:  3
+
+[06:10:00] Statek 1: Otrzymano polecenie od sternika: er: Pasażer PID: 1340768, wiek: 59, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku: 1
+
+[06:10:00] Statek 2: Otrzymano polecenie od sternika: na statku: 1
+
+[06:10:00] Statek 1: Otrzymano polecenie od sternika: Kasjer: Pasażer PID: 1340771, wiek: 19, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku: 0
+
+[06:12:00] Statek 2: Otrzymano komunikat: [06:12:00] Kasjer: Pasażer (2 rejs) PID:1340771, wiek: 19, zapłacił: 10.00, statek: 2, wolne miejsca: 0
+
+[06:12:00] Statek 2: Niepoprawny format komunikatu: [06:12:00] Kasjer: Pasażer (2 rejs) PID:1340771, wiek: 19, zapłacił: 10.00, statek: 2, wolne miejsca: 0
+
+[06:12:00] Statek 2: Otrzymano polecenie od sternika: [06:12:00] Kasjer: Pasażer (2 rejs) PID:1340771, wiek: 19, zapłacił: 10.00, statek: 2, wolne miejsca: 0
+
+Statek uruchomiony. Czeka na pasażerów i polecenia sternika.
+Statek uruchomiony. Czeka na pasażerów i polecenia sternika.
+[nowyczas.c] pasazer pid: 1358743. wsiadl na statek 1. Liczba miejsc na statku: 3.[nowyczas.c] pasazer pid: 1359966. wsiadl na statek 1. Liczba miejsc na statku: 2.[nowyczas.c] pasazer pid: 1359966. wsiadl na statek 2. Liczba miejsc na statku: 21359968.[nowyczas.c] pasazer pid: 1360256. wsiadl na statek 1. Liczba miejsc na statku: 1.[nowyczas.c] pasazer pid: 1360325. wsiadl na statek 1. Liczba miejsc na statku: 0.[nowyczas.c] pasazer pid: 1360425. wsiadl na statek 2. Liczba miejsc na statku: 1.[nowyczas.c] pasazer pid: 1360612. wsiadl na statek 2. Liczba miejsc na statku: 0.Statek uruchomiony. Czeka na pasażerów i polecenia sternika.
+[06:00:00] nowyczas.c pasazer pid: 1381861. wsiadl na statek 1. Liczba miejsc na statku: 3.
+[06:03:00] nowyczas.c pasazer pid: 1381951. wsiadl na statek 1. Liczba miejsc na statku: 2.
+[06:06:00] nowyczas.c pasazer pid: 1382021. wsiadl na statek 1. Liczba miejsc na statku: 1.
+[06:09:00] nowyczas.c pasazer pid: 1382093. wsiadl na statek 1. Liczba miejsc na statku: 0.
+[06:12:00] nowyczas.c pasazer pid: 1382127. wsiadl na statek 2. Liczba miejsc na statku: 3.
+[06:15:00] nowyczas.c pasazer pid: 1382263. wsiadl na statek 2. Liczba miejsc na statku: 2.
+[06:18:00] nowyczas.c pasazer pid: 1382592. wsiadl na statek 2. Liczba miejsc na statku: 1.
+[06:21:00] nowyczas.c pasazer pid: 1382804. wsiadl na statek 2. Liczba miejsc na statku: 0.
+Statek uruchomiony. Czeka na pasażerów i polecenia sternika.
+[06:00:00] nowyczas.c pasazer pid: 1400399. wsiadl na statek 1. Liczba miejsc na statku: 3.
+[06:03:00] nowyczas.c pasazer pid: 1400431. wsiadl na statek 1. Liczba miejsc na statku: 2.
+[06:03:00] nowyczas.c pasazer pid: 1400431. wsiadl na statek 2. Liczba miejsc na statku: 21400433.
+[06:06:00] nowyczas.c pasazer pid: 1400484. wsiadl na statek 1. Liczba miejsc na statku: 1.
+[06:09:00] nowyczas.c pasazer pid: 1400548. wsiadl na statek 1. Liczba miejsc na statku: 0.
+[06:12:00] nowyczas.c pasazer pid: 1400597. wsiadl na statek 2. Liczba miejsc na statku: 1.
+[06:15:00] nowyczas.c pasazer pid: 1400656. wsiadl na statek 2. Liczba miejsc na statku: 0.
+Statek uruchomiony. Czeka na pasażerów i polecenia sternika.
+[06:00:00] nowyczas.c pasazer pid: 2121861. wsiadl na statek 1. Liczba miejsc na statku: 3.
+[06:03:00] nowyczas.c pasazer pid: 2121863. wsiadl na statek 2. Liczba miejsc na statku: 3.
+[06:06:00] nowyczas.c pasazer pid: 2121865. wsiadl na statek 1. Liczba miejsc na statku: 2.

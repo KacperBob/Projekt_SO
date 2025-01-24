@@ -1,0 +1,37 @@
+        printf("FIFO boat1 otwarte do odczytu.\n");
+    }
+
+    int fd_boat2 = open(FIFO_PATH2, O_RDONLY);
+    if (fd_boat2 == -1) {
+        perror("Nie udało się otworzyć FIFO dla boat2");
+        cleanup();
+    } else {
+        printf("FIFO boat2 otwarte do odczytu.\n");
+    }
+
+    printf("FIFO files opened for reading.\n");
+
+    // Inicjalizacja czasu ostatniego pasażera
+    last_passenger_time_boat1 = time(NULL);
+    last_passenger_time_boat2 = time(NULL);
+
+    while (1) {
+        // Odczyt z FIFO dla boat1
+        process_fifo(fd_boat1, "Statek 1", &seats_boat1, MAX_SEATS_BOAT1, &last_passenger_time_boat1);
+
+        // Odczyt z FIFO dla boat2
+        process_fifo(fd_boat2, "Statek 2", &seats_boat2, MAX_SEATS_BOAT2, &last_passenger_time_boat2);
+
+        // Sprawdzenie warunków dla rejsów
+        check_and_start_trip("Statek 1", &seats_boat1, MAX_SEATS_BOAT1, &last_passenger_time_boat1);
+        check_and_start_trip("Statek 2", &seats_boat2, MAX_SEATS_BOAT2, &last_passenger_time_boat2);
+
+        usleep(100000); // Czas oczekiwania na kolejne dane
+    }
+
+    close(fd_boat1);
+    close(fd_boat2);
+    cleanup();
+
+    return 0;
+}
