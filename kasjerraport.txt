@@ -172,3 +172,149 @@ Kasjer uruchomiony. Oczekuję na pasażerów i komunikaty.
 [06:00:00] Kasjer: Pasażer PID: 2121861, wiek: 67, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku: 3.
 [06:03:00] Kasjer: Pasażer PID: 2121863, wiek: 74, zapłacił: 20.00 i został wysłany na statek: 2. Wolne miejsca na statku: 3.
 [06:06:00] Kasjer: Pasażer PID: 2121865, wiek: 34, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku: 2.
+kasjer: Inicjalizuję pamięć współdzieloną dla pojemności statków.
+Kasjer uruchomiony. Oczekuję na pasażerów i komunikaty.
+[06:00:00] Kasjer: Pasażer PID: 2194825, wiek: 16, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku: 3.
+[06:00:00] Kasjer: Pasażerowie PID:2194825 i PID:2194827, zapłacili: 40.00 i zostali wysłani na statek:2. Wolne miejsca na statku: 2.
+[06:03:00] Kasjer: Pasażer PID: 2194828, wiek: 33, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku: 2.
+kasjer: Inicjalizuję pamięć współdzieloną dla pojemności statków.
+Kasjer uruchomiony. Oczekuję na pasażerów i komunikaty.
+[06:00:00] Kasjer: Pasażer PID: 481659, wiek: 32, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku: 3.
+[06:03:00] Kasjer: Pasażer PID: 481679, wiek: 41, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku: 2.
+[06:06:00] Kasjer: Pasażer PID: 481702, wiek: 47, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku: 1.
+kasjer: Inicjalizuję pamięć współdzieloną dla pojemności statków.
+Kasjer uruchomiony. Oczekuję na pasażerów i komunikaty.
+[06:00:00] Kasjer: Pasażer PID: 484109, wiek: 66, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku: 3.
+[06:03:00] Kasjer: Pasażer PID: 484173, wiek: 55, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku: 2.
+[06:04:00] Kasjer: Pasażer (2 rejs) PID:484109, wiek: 66, zapłacił: 10.00, statek: 1, wolne miejsca: 1.
+[06:06:00] Kasjer: Pasażer PID: 484215, wiek: 46, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku: 0.
+[06:06:00] Kasjer: Pasażerowie PID:484215 i PID:484217, zapłacili: 20.00 i zostali wysłani na statek:2. Wolne miejsca na statku: 2.
+[06:09:00] Kasjer: Pasażer PID: 484260, wiek: 63, zapłacił: 20.00 i został wysłany na statek: 2. Wolne miejsca na statku: 1.
+[06:12:00] Kasjer: Pasażer PID: 484303, wiek: 29, zapłacił: 20.00 i został wysłany na statek: 2. Wolne miejsca na statku: 0.
+[06:15:00] Kasjer: Brak miejsc dla pasażera PID:484346.
+[06:18:00] Kasjer: Brak miejsc dla pasażera PID:484494.
+kasjer: Inicjalizuję pamięć współdzieloną dla pojemności statków.
+Kasjer uruchomiony. Oczekuję na pasażerów i komunikaty.
+[06:00:00] Kasjer: Pasażer PID: 486885, wiek: 40, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku: 3.
+[06:03:00] Kasjer: Pasażer PID: 486905, wiek: 19, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku: 2.
+[06:05:00] Kasjer: Pasażer (2 rejs) PID:486905, wiek: 19, zapłacił: 10.00, statek: 1, wolne miejsca: 1.
+[06:06:00] Kasjer: Pasażer PID: 486926, wiek: 70, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku: 0.
+[06:06:00] Kasjer: Pasażerowie PID:486926 i PID:486928, zapłacili: 20.00 i zostali wysłani na statek:2. Wolne miejsca na statku: 2.
+[06:09:00] Kasjer: Pasażer PID: 486949, wiek: 65, zapłacił: 20.00 i został wysłany na statek: 2. Wolne miejsca na statku: 1.
+kasjer: Inicjalizuję pamięć współdzieloną dla pojemności statków.
+Kasjer uruchomiony. Oczekuję na pasażerów i komunikaty.
+[06:00:00] Kasjer: Pasażer PID: 487867, wiek: 67, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku: 3.
+[06:03:00] Kasjer: Pasażer PID: 487872, wiek: 36, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku: 2.
+[06:06:00] Kasjer: Pasażer PID: 487876, wiek: 69, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku: 1.
+kasjer: Inicjalizuję pamięć współdzieloną dla pojemności statków.
+Kasjer uruchomiony. Oczekuję na pasażerów i komunikaty.
+[06:00:00] Kasjer: Pasażer PID: 599971, wiek: 65, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku: 3.
+kasjer: Inicjalizuję pamięć współdzieloną dla pojemności statków.
+Kasjer uruchomiony. Oczekuję na pasażerów i komunikaty.
+[06:00:00] Kasjer: Pasażer PID: 603624, wiek: 38, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku: 3.
+[06:03:00] Kasjer: Pasażer PID: 603660, wiek: 44, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku: 2.
+[06:06:00] Kasjer: Pasażer PID: 603683, wiek: 74, zapłacił: 20.00 i został wysłany na statek: 2. Wolne miejsca na statku: 3.
+[06:09:00] Kasjer: Pasażer PID: 603694, wiek: 63, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku: 1.
+[06:09:00] Kasjer: Pasażerowie PID:603694 i PID:603696, zapłacili: 40.00 i zostali wysłani na statek:2. Wolne miejsca na statku: 1.
+[06:12:00] Kasjer: Pasażer PID: 603717, wiek: 35, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku: 0.
+[06:15:00] Kasjer: Pasażer PID: 603733, wiek: 31, zapłacił: 20.00 i został wysłany na statek: 2. Wolne miejsca na statku: 0.
+[06:15:00] Kasjer: Brak miejsc dla pasażerów PID:603733 i PID:603735.
+[06:18:00] Kasjer: Brak miejsc dla pasażera PID:603736.
+[06:21:00] Kasjer: Brak miejsc dla pasażera PID:603742.
+Kasjer uruchomiony. Oczekuję na pasażerów i komunikaty.
+[06:00:00] Kasjer: Pasażer PID: 606015, wiek: 65, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku: 6.
+[06:00:00] Kasjer: Pasażerowie PID:606015 i PID:606017, zapłacili: 40.00 i zostali wysłani na statek:2. Wolne miejsca na statku: 2.
+[06:03:00] Kasjer: Pasażer PID: 606019, wiek: 19, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku: 5.
+[06:06:00] Kasjer: Pasażer PID: 606022, wiek: 57, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku: 4.
+[06:09:00] Kasjer: Pasażer PID: 606024, wiek: 71, zapłacił: 20.00 i został wysłany na statek: 2. Wolne miejsca na statku: 1.
+[06:12:00] Kasjer: Pasażer PID: 606028, wiek: 56, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku: 3.
+[06:15:00] Kasjer: Pasażer PID: 606030, wiek: 24, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku: 2.
+[06:18:00] Kasjer: Pasażer PID: 606032, wiek: 61, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku: 1.
+[06:21:00] Kasjer: Pasażer PID: 606039, wiek: 52, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku: 0.
+[06:21:00] Kasjer: Brak miejsc dla pasażerów PID:606039 i PID:606041.
+[06:24:00] Kasjer: Pasażer PID: 606042, wiek: 45, zapłacił: 20.00 i został wysłany na statek: 2. Wolne miejsca na statku: 0.
+kasjer: Inicjalizuję pamięć współdzieloną dla pojemności statków.
+Kasjer uruchomiony. Oczekuję na pasażerów i komunikaty.
+[06:00:00] Kasjer: Pasażer PID: 608568, wiek: 74, zapłacił: 20.00 i został wysłany na statek: 2. Wolne miejsca na statku: 3.
+[06:03:00] Kasjer: Pasażer PID: 608601, wiek: 21, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku: 3.
+[06:06:00] Kasjer: Pasażer PID: 608625, wiek: 23, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku: 2.
+[06:09:00] Kasjer: Pasażer PID: 608648, wiek: 29, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku: 1.
+[06:12:00] Kasjer: Pasażer PID: 608674, wiek: 41, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku: 0.
+[06:15:00] Kasjer: Pasażer PID: 608693, wiek: 74, zapłacił: 20.00 i został wysłany na statek: 2. Wolne miejsca na statku: 2.
+[06:18:00] Kasjer: Pasażer PID: 608697, wiek: 67, zapłacił: 20.00 i został wysłany na statek: 2. Wolne miejsca na statku: 1.
+[06:21:00] Kasjer: Pasażer PID: 608701, wiek: 61, zapłacił: 20.00 i został wysłany na statek: 2. Wolne miejsca na statku: 0.
+[06:24:00] Kasjer: Brak miejsc dla pasażera PID:608704.
+[06:27:00] Kasjer: Brak miejsc dla pasażera PID:608710.
+kasjer: Inicjalizuję pamięć współdzieloną dla pojemności statków.
+Kasjer uruchomiony. Oczekuję na pasażerów i komunikaty.
+[06:00:00] Kasjer: Pasażer PID: 610690, wiek: 47, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku: 3.
+[06:00:00] Kasjer: Pasażerowie PID:610690 i PID:610692, zapłacili: 30.00 i zostali wysłani na statek:2. Wolne miejsca na statku: 2.
+[06:03:00] Kasjer: Pasażer PID: 610741, wiek: 46, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku: 2.
+[06:06:00] Kasjer: Pasażer PID: 610753, wiek: 44, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku: 1.
+[06:06:00] Kasjer: Pasażerowie PID:610753 i PID:610755, zapłacili: 40.00 i zostali wysłani na statek:2. Wolne miejsca na statku: 0.
+[06:09:00] Kasjer: Pasażer PID: 610812, wiek: 57, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku: 0.
+[06:09:00] Kasjer: Brak miejsc dla pasażerów PID:610812 i PID:610814.
+[06:12:00] Kasjer: Brak miejsc dla pasażera PID:610846.
+[06:15:00] Kasjer: Brak miejsc dla pasażera PID:610893.
+[06:15:00] Kasjer: Brak miejsc dla pasażerów PID:610893 i PID:610895.
+[06:18:00] Kasjer: Brak miejsc dla pasażera PID:610970.
+kasjer: Inicjalizuję pamięć współdzieloną dla pojemności statków.
+Kasjer uruchomiony. Oczekuję na pasażerów i komunikaty.
+[06:00:00] Kasjer: Pasażer PID: 611289, wiek: 65, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku: 3.
+[06:03:00] Kasjer: Pasażer PID: 611314, wiek: 26, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku: 2.
+[06:03:00] Kasjer: Pasażerowie PID:611314 i PID:611316, zapłacili: 40.00 i zostali wysłani na statek:2. Wolne miejsca na statku: 2.
+[06:06:00] Kasjer: Pasażer PID: 611338, wiek: 50, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku: 1.
+[06:09:00] Kasjer: Pasażer PID: 611365, wiek: 45, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku: 0.
+[06:12:00] Kasjer: Pasażer PID: 611398, wiek: 55, zapłacił: 20.00 i został wysłany na statek: 2. Wolne miejsca na statku: 1.
+[06:15:00] Kasjer: Pasażer PID: 611434, wiek: 15, zapłacił: 20.00 i został wysłany na statek: 2. Wolne miejsca na statku: 0.
+[06:15:00] Kasjer: Brak miejsc dla pasażerów PID:611434 i PID:611436.
+[06:18:00] Kasjer: Brak miejsc (2 rejs) dla PID:611434.
+[06:18:00] Kasjer: Brak miejsc dla pasażera PID:611470.
+[06:21:00] Kasjer: Brak miejsc dla pasażera PID:611475.
+kasjer: Inicjalizuję pamięć współdzieloną dla pojemności statków.
+Kasjer uruchomiony. Oczekuję na pasażerów i komunikaty.
+[06:00:00] Kasjer: Pasażer PID: 612939, wiek: 19, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku: 3.
+[06:03:00] Kasjer: Pasażer PID: 612941, wiek: 70, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku: 2.
+[06:06:00] Kasjer: Pasażer PID: 612954, wiek: 35, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku: 1.
+[06:09:00] Kasjer: Pasażer PID: 612967, wiek: 65, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku: 0.
+[06:12:00] Kasjer: Pasażer PID: 612988, wiek: 44, zapłacił: 20.00 i został wysłany na statek: 2. Wolne miejsca na statku: 3.
+[06:15:00] Kasjer: Pasażer PID: 613014, wiek: 39, zapłacił: 20.00 i został wysłany na statek: 2. Wolne miejsca na statku: 2.
+[06:18:00] Kasjer: Pasażer PID: 613033, wiek: 60, zapłacił: 20.00 i został wysłany na statek: 2. Wolne miejsca na statku: 1.
+[06:21:00] Kasjer: Pasażer PID: 613035, wiek: 48, zapłacił: 20.00 i został wysłany na statek: 2. Wolne miejsca na statku: 0.
+[06:24:00] Kasjer: Brak miejsc dla pasażera PID:613047.
+[06:24:00] Kasjer: Brak miejsc dla pasażerów PID:613047 i PID:613049.
+[06:27:00] Kasjer: Brak miejsc dla pasażera PID:613054.
+Kasjer uruchomiony. Oczekuję na pasażerów i komunikaty.
+[06:00:00] Kasjer: Pasażer PID: 614754, wiek: 32, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku: 6.
+[06:03:00] Kasjer: Pasażer PID: 614777, wiek: 49, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku: 5.
+[06:03:00] Kasjer: Pasażerowie PID:614777 i PID:614779, zapłacili: 40.00 i zostali wysłani na statek:2. Wolne miejsca na statku: 2.
+[06:06:00] Kasjer: Pasażer PID: 614800, wiek: 42, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku: 4.
+[06:09:00] Kasjer: Pasażer PID: 614850, wiek: 46, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku: 3.
+[06:12:00] Kasjer: Pasażer PID: 614856, wiek: 61, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku: 2.
+[06:15:00] Kasjer: Pasażer PID: 614912, wiek: 42, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku: 1.
+[06:18:00] Kasjer: Pasażer PID: 614942, wiek: 16, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku: 0.
+[06:21:00] Kasjer: Pasażer PID: 614997, wiek: 70, zapłacił: 20.00 i został wysłany na statek: 2. Wolne miejsca na statku: 1.
+kasjer: Inicjalizuję pamięć współdzieloną dla pojemności statków.
+Kasjer uruchomiony. Oczekuję na pasażerów i komunikaty.
+[06:00:00] Kasjer: Pasażer PID: 615378, wiek: 42, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku: 3.
+[06:03:00] Kasjer: Pasażer PID: 615383, wiek: 40, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku: 2.
+[06:03:00] Kasjer: Pasażerowie PID:615383 i PID:615385, zapłacili: 30.00 i zostali wysłani na statek:2. Wolne miejsca na statku: 2.
+[06:06:00] Kasjer: Pasażer PID: 615390, wiek: 55, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku: 1.
+[06:06:00] Kasjer: Pasażerowie PID:615390 i PID:615392, zapłacili: 30.00 i zostali wysłani na statek:2. Wolne miejsca na statku: 0.
+[06:09:00] Kasjer: Pasażer PID: 615393, wiek: 34, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku: 0.
+[06:12:00] Kasjer: Brak miejsc dla pasażera PID:615402.
+[06:15:00] Kasjer: Brak miejsc dla pasażera PID:615416.
+[06:17:00] Kasjer: Brak miejsc (2 rejs) dla PID:615416.
+kasjer: Inicjalizuję pamięć współdzieloną dla pojemności statków.
+Kasjer uruchomiony. Oczekuję na pasażerów i komunikaty.
+[06:00:00] Kasjer: Pasażer PID: 615518, wiek: 21, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku: 3.
+[06:03:00] Kasjer: Pasażer PID: 615524, wiek: 21, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku: 2.
+[06:03:00] Kasjer: Pasażerowie PID:615524 i PID:615526, zapłacili: 40.00 i zostali wysłani na statek:2. Wolne miejsca na statku: 2.
+[06:06:00] Kasjer: Pasażer PID: 615530, wiek: 36, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku: 1.
+[06:06:00] Kasjer: Pasażerowie PID:615530 i PID:615532, zapłacili: 30.00 i zostali wysłani na statek:2. Wolne miejsca na statku: 0.
+[06:09:00] Kasjer: Pasażer PID: 615538, wiek: 21, zapłacił: 20.00 i został wysłany na statek: 1. Wolne miejsca na statku: 0.
+[06:09:00] Kasjer: Brak miejsc dla pasażerów PID:615538 i PID:615540.
+[06:12:00] Kasjer: Brak miejsc dla pasażera PID:615543.
+[06:12:00] Kasjer: Brak miejsc dla pasażerów PID:615543 i PID:615545.
+[06:15:00] Kasjer: Brak miejsc dla pasażera PID:615548.
+[06:15:00] Kasjer: Brak miejsc dla pasażerów PID:615548 i PID:615550.

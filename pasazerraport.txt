@@ -259,3 +259,121 @@
 [06:00:00] Pasażer: PID:2121861, wiek:67. Pojawił się.
 [06:03:00] Pasażer: PID:2121863, wiek:74. Pojawił się.
 [06:06:00] Pasażer: PID:2121865, wiek:34. Pojawił się.
+[06:00:00] Pasażerowie: PID(rodzic):2194825, PID(potomny):2194827, wiek1:16. Pojawili się.
+[06:00:00] Pasażer potomny: PID:2194827, PPID:2194825, wiek:95. Pojawił się.
+[06:03:00] Pasażer: PID:2194828, wiek:33. Pojawił się.
+[06:00:00] Pasażer: PID:481659, wiek:32. Pojawił się.
+[06:03:00] Pasażer: PID:481679, wiek:41. Pojawił się.
+[06:06:00] Pasażer: PID:481702, wiek:47. Pojawił się.
+[06:00:00] Pasażer: PID:484109, wiek:66. Pojawił się.
+[06:03:00] Pasażer: PID:484173, wiek:55. Pojawił się.
+[06:04:00] Pasażer: PID:484109, wiek:66. Drugi rejs (ulga 50%).
+[06:06:00] Pasażerowie: PID(rodzic):484215, PID(potomny):484217, wiek1:46. Pojawili się.
+[06:06:00] Pasażer potomny: PID:484217, PPID:484215, wiek:0. Pojawił się.
+[06:09:00] Pasażer: PID:484260, wiek:63. Pojawił się.
+[06:12:00] Pasażer: PID:484303, wiek:29. Pojawił się.
+[06:15:00] Pasażer: PID:484346, wiek:43. Pojawił się.
+[06:18:00] Pasażer: PID:484494, wiek:36. Pojawił się.
+[06:00:00] Pasażer: PID:486885, wiek:40. Pojawił się.
+[06:03:00] Pasażer: PID:486905, wiek:19. Pojawił się.
+[06:05:00] Pasażer: PID:486905, wiek:19. Drugi rejs (ulga 50%).
+[06:06:00] Pasażerowie: PID(rodzic):486926, PID(potomny):486928, wiek1:70. Pojawili się.
+[06:06:00] Pasażer potomny: PID:486928, PPID:486926, wiek:0. Pojawił się.
+[06:09:00] Pasażer: PID:486949, wiek:65. Pojawił się.
+[06:00:00] Pasażer: PID:487867, wiek:67. Pojawił się.
+[06:03:00] Pasażer: PID:487872, wiek:36. Pojawił się.
+[06:06:00] Pasażer: PID:487876, wiek:69. Pojawił się.
+[06:00:00] Pasażer: PID:599971, wiek:65. Pojawił się.
+[06:00:00] Pasażer: PID:603624, wiek:38. Pojawił się.
+[06:03:00] Pasażer: PID:603660, wiek:44. Pojawił się.
+[06:06:00] Pasażer: PID:603683, wiek:74. Pojawił się.
+[06:09:00] Pasażerowie: PID(rodzic):603694, PID(potomny):603696, wiek1:63. Pojawili się.
+[06:09:00] Pasażer potomny: PID:603696, PPID:603694, wiek:92. Pojawił się.
+[06:12:00] Pasażer: PID:603717, wiek:35. Pojawił się.
+[06:15:00] Pasażerowie: PID(rodzic):603733, PID(potomny):603735, wiek1:31. Pojawili się.
+[06:15:00] Pasażer potomny: PID:603735, PPID:603733, wiek:6. Pojawił się.
+[06:18:00] Pasażer: PID:603736, wiek:24. Pojawił się.
+[06:21:00] Pasażer: PID:603742, wiek:23. Pojawił się.
+[06:00:00] Pasażerowie: PID(rodzic):606015, PID(potomny):606017, wiek1:65. Pojawili się.
+[06:00:00] Pasażer potomny: PID:606017, PPID:606015, wiek:92. Pojawił się.
+[06:03:00] Pasażer: PID:606019, wiek:19. Pojawił się.
+[06:06:00] Pasażer: PID:606022, wiek:57. Pojawił się.
+[06:09:00] Pasażer: PID:606024, wiek:71. Pojawił się.
+[06:12:00] Pasażer: PID:606028, wiek:56. Pojawił się.
+[06:15:00] Pasażer: PID:606030, wiek:24. Pojawił się.
+[06:18:00] Pasażer: PID:606032, wiek:61. Pojawił się.
+[06:21:00] Pasażerowie: PID(rodzic):606039, PID(potomny):606041, wiek1:52. Pojawili się.
+[06:21:00] Pasażer potomny: PID:606041, PPID:606039, wiek:81. Pojawił się.
+[06:24:00] Pasażer: PID:606042, wiek:45. Pojawił się.
+[06:00:00] Pasażer: PID:608568, wiek:74. Pojawił się.
+[06:03:00] Pasażer: PID:608601, wiek:21. Pojawił się.
+[06:06:00] Pasażer: PID:608625, wiek:23. Pojawił się.
+[06:09:00] Pasażer: PID:608648, wiek:29. Pojawił się.
+[06:12:00] Pasażer: PID:608674, wiek:41. Pojawił się.
+[06:15:00] Pasażer: PID:608693, wiek:74. Pojawił się.
+[06:18:00] Pasażer: PID:608697, wiek:67. Pojawił się.
+[06:21:00] Pasażer: PID:608701, wiek:61. Pojawił się.
+[06:24:00] Pasażer: PID:608704, wiek:20. Pojawił się.
+[06:27:00] Pasażer: PID:608710, wiek:40. Pojawił się.
+[06:00:00] Pasażerowie: PID(rodzic):610690, PID(potomny):610692, wiek1:47. Pojawili się.
+[06:00:00] Pasażer potomny: PID:610692, PPID:610690, wiek:12. Pojawił się.
+[06:03:00] Pasażer: PID:610741, wiek:46. Pojawił się.
+[06:06:00] Pasażerowie: PID(rodzic):610753, PID(potomny):610755, wiek1:44. Pojawili się.
+[06:06:00] Pasażer potomny: PID:610755, PPID:610753, wiek:84. Pojawił się.
+[06:09:00] Pasażerowie: PID(rodzic):610812, PID(potomny):610814, wiek1:57. Pojawili się.
+[06:09:00] Pasażer potomny: PID:610814, PPID:610812, wiek:98. Pojawił się.
+[06:12:00] Pasażer: PID:610846, wiek:44. Pojawił się.
+[06:15:00] Pasażerowie: PID(rodzic):610893, PID(potomny):610895, wiek1:24. Pojawili się.
+[06:15:00] Pasażer potomny: PID:610895, PPID:610893, wiek:1. Pojawił się.
+[06:18:00] Pasażer: PID:610970, wiek:58. Pojawił się.
+[06:00:00] Pasażer: PID:611289, wiek:65. Pojawił się.
+[06:03:00] Pasażerowie: PID(rodzic):611314, PID(potomny):611316, wiek1:26. Pojawili się.
+[06:03:00] Pasażer potomny: PID:611316, PPID:611314, wiek:97. Pojawił się.
+[06:06:00] Pasażer: PID:611338, wiek:50. Pojawił się.
+[06:09:00] Pasażer: PID:611365, wiek:45. Pojawił się.
+[06:12:00] Pasażer: PID:611398, wiek:55. Pojawił się.
+[06:15:00] Pasażerowie: PID(rodzic):611434, PID(potomny):611436, wiek1:15. Pojawili się.
+[06:15:00] Pasażer potomny: PID:611436, PPID:611434, wiek:75. Pojawił się.
+[06:18:00] Pasażer: PID:611434, wiek:15. Drugi rejs (ulga 50%).
+[06:18:00] Pasażer: PID:611470, wiek:51. Pojawił się.
+[06:21:00] Pasażer: PID:611475, wiek:27. Pojawił się.
+[06:00:00] Pasażer: PID:612939, wiek:19. Pojawił się.
+[06:03:00] Pasażer: PID:612941, wiek:70. Pojawił się.
+[06:06:00] Pasażer: PID:612954, wiek:35. Pojawił się.
+[06:09:00] Pasażer: PID:612967, wiek:65. Pojawił się.
+[06:12:00] Pasażer: PID:612988, wiek:44. Pojawił się.
+[06:15:00] Pasażer: PID:613014, wiek:39. Pojawił się.
+[06:18:00] Pasażer: PID:613033, wiek:60. Pojawił się.
+[06:21:00] Pasażer: PID:613035, wiek:48. Pojawił się.
+[06:24:00] Pasażerowie: PID(rodzic):613047, PID(potomny):613049, wiek1:25. Pojawili się.
+[06:24:00] Pasażer potomny: PID:613049, PPID:613047, wiek:2. Pojawił się.
+[06:27:00] Pasażer: PID:613054, wiek:37. Pojawił się.
+[06:00:00] Pasażer: PID:614754, wiek:32. Pojawił się.
+[06:03:00] Pasażerowie: PID(rodzic):614777, PID(potomny):614779, wiek1:49. Pojawili się.
+[06:03:00] Pasażer potomny: PID:614779, PPID:614777, wiek:78. Pojawił się.
+[06:06:00] Pasażer: PID:614800, wiek:42. Pojawił się.
+[06:09:00] Pasażer: PID:614850, wiek:46. Pojawił się.
+[06:12:00] Pasażer: PID:614856, wiek:61. Pojawił się.
+[06:15:00] Pasażer: PID:614912, wiek:42. Pojawił się.
+[06:18:00] Pasażer: PID:614942, wiek:16. Pojawił się.
+[06:21:00] Pasażer: PID:614997, wiek:70. Pojawił się.
+[06:00:00] Pasażer: PID:615378, wiek:42. Pojawił się.
+[06:03:00] Pasażerowie: PID(rodzic):615383, PID(potomny):615385, wiek1:40. Pojawili się.
+[06:03:00] Pasażer potomny: PID:615385, PPID:615383, wiek:11. Pojawił się.
+[06:06:00] Pasażerowie: PID(rodzic):615390, PID(potomny):615392, wiek1:55. Pojawili się.
+[06:06:00] Pasażer potomny: PID:615392, PPID:615390, wiek:9. Pojawił się.
+[06:09:00] Pasażer: PID:615393, wiek:34. Pojawił się.
+[06:12:00] Pasażer: PID:615402, wiek:40. Pojawił się.
+[06:15:00] Pasażer: PID:615416, wiek:54. Pojawił się.
+[06:17:00] Pasażer: PID:615416, wiek:54. Drugi rejs (ulga 50%).
+[06:00:00] Pasażer: PID:615518, wiek:21. Pojawił się.
+[06:03:00] Pasażerowie: PID(rodzic):615524, PID(potomny):615526, wiek1:21. Pojawili się.
+[06:03:00] Pasażer potomny: PID:615526, PPID:615524, wiek:78. Pojawił się.
+[06:06:00] Pasażerowie: PID(rodzic):615530, PID(potomny):615532, wiek1:36. Pojawili się.
+[06:06:00] Pasażer potomny: PID:615532, PPID:615530, wiek:12. Pojawił się.
+[06:09:00] Pasażerowie: PID(rodzic):615538, PID(potomny):615540, wiek1:21. Pojawili się.
+[06:09:00] Pasażer potomny: PID:615540, PPID:615538, wiek:2. Pojawił się.
+[06:12:00] Pasażerowie: PID(rodzic):615543, PID(potomny):615545, wiek1:24. Pojawili się.
+[06:12:00] Pasażer potomny: PID:615545, PPID:615543, wiek:92. Pojawił się.
+[06:15:00] Pasażerowie: PID(rodzic):615548, PID(potomny):615550, wiek1:37. Pojawili się.
+[06:15:00] Pasażer potomny: PID:615550, PPID:615548, wiek:4. Pojawił się.

@@ -1,0 +1,58 @@
+// shared.h
+#ifndef SHARED_H
+#define SHARED_H
+
+#include <time.h> // Dodane dla typu time_t
+
+#define SHM_KEY_TIME 5678
+#define SHM_KEY_CAPACITY 8765
+#define TIME_SIZE 20
+
+struct boat_info {
+    int passengers_on_bridge;
+    int direction;       // 1 - wchodzenie, -1 - schodzenie
+    int seats_available;
+    time_t last_update;
+};
+
+#endif
+Kluczowe funkcjonalności:
+Synchronizacja dostępu:
+
+Semafor systemowy chroni dostęp do współdzielonych struktur
+
+Funkcje sem_lock() i sem_unlock() do kontroli sekcji krytycznych
+
+Automatyczna zmiana kierunku:
+
+Co 30 sekund następuje zmiana kierunku ruchu
+
+Opóźnienie 1s przy zmianie kierunku
+
+Obsługa FIFO:
+
+Czyta komunikaty z kolejek fifo_boat1 i fifo_boat2
+
+Obsługuje jednocześnie do 2 osób na pomoście (MAX_K)
+
+Logowanie zdarzeń:
+
+Zapis do pliku pomost.log
+
+Wyświetlanie komunikatów na konsoli w formacie [HH:MM:SS] Pomost N: ...
+
+Bezpieczne czyszczenie:
+
+Obsługa sygnałów SIGINT i SIGTERM
+
+Odłączanie segmentów pamięci współdzielonej
+
+Aby kod działał poprawnie, upewnij się że:
+
+Posiadasz wszystkie zależności w projekcie
+
+Komponenty są kompilowane z tym samym shared.h
+
+FIFO są tworzone z odpowiednimi uprawnieniami (chmod 0666 fifo_*)
+
+New chat
