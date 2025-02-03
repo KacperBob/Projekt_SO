@@ -1,40 +1,64 @@
 #!/bin/bash
 
-FIFO_BOAT1="fifo_boat1"
-FIFO_BOAT2="fifo_boat2"
+echo "Czyszczenie starych zasobów IPC..."
+# Usuwamy kolejki i pamięć dzieloną, jeśli istnieją
+TICKET_KEY=1234
+BOARDING_KEY=5678
+DEPART_KEY=9012
+SHM_KEY=2345
 
-cleanup() {
-  echo "[start.sh] Otrzymano sygnał - zatrzymuję pętlę pasażerów..."
-  exit 0
-}
+TICKET_Q=$(ipcs -q | awk -v key=$(printf "0x%x" $TICKET_KEY) '$1==key {print $2}')
+if [ ! -z "$TICKET_Q" ]; then
+    ipcrm -q $TICKET_Q
+fi
 
-trap cleanup SIGINT SIGTERM
+BOARDING_Q=$(ipcs -q | awk -v key=$(printf "0x%x" $BOARDING_KEY) '$1==key {print $2}')
+if [ ! -z "$BOARDING_Q" ]; then
+    ipcrm -q $BOARDING_Q
+fi
 
-echo "[start.sh] Usuwam i tworzę FIFO..."
-rm -f "$FIFO_BOAT1" "$FIFO_BOAT2"
-mkfifo "$FIFO_BOAT1"
-mkfifo "$FIFO_BOAT2"
+DEPART_Q=$(ipcs -q | awk -v key=$(printf "0x%x" $DEPART_KEY) '$1==key {print $2}')
+if [ ! -z "$DEPART_Q" ]; then
+    ipcrm -q $DEPART_Q
+fi
 
-echo "[start.sh] Uruchamiam nowyczas..."
-./nowyczas &
-echo $! > nowyczas.pid
+SHM_ID=$(ipcs -m | awk -v key=$(printf "0x%x" $SHM_KEY) '$1==key {print $2}')
+if [ ! -z "$SHM_ID" ]; then
+    ipcrm -m $SHM_ID
+fi
 
-echo "[start.sh] Uruchamiam kasjer..."
+echo "Kompilacja programów..."
+gcc -o pasazer pasazer.c -lrt -lpthread
+gcc -o kasjer kasjer.c -lrt -lpthread
+gcc -o pomost pomost.c -lrt -lpthread
+gcc -o statek statek.c -lrt -lpthread
+gcc -o policja policja.c -lrt -lpthread
+
+echo "Inicjalizacja IPC i uruchamianie procesów..."
+
 ./kasjer &
-echo $! > kasjer.pid
-
-echo "[start.sh] Uruchamiam pomost..."
+KASJER_PID=$!
 ./pomost &
-echo $! > pomost.pid
+POMOST_PID=$!
+./sternik &   # (sternik.c – wersja niezmieniona z wcześniejszych odpowiedzi)
+STERNIK_PID=$!
+./statek 1 &
+STATEK1_PID=$!
+./statek 2 &
+STATEK2_PID=$!
+./policja $STATEK1_PID $STATEK2_PID &
+POLICJA_PID=$!
 
-echo "[start.sh] Uruchamiam statek..."
-./statek &
-echo $! > statek.pid
+echo "Uruchomiono procesy:"
+echo "kasjer: $KASJER_PID"
+echo "pomost: $POMOST_PID"
+echo "sternik: $STERNIK_PID"
+echo "statek 1: $STATEK1_PID"
+echo "statek 2: $STATEK2_PID"
+echo "policja: $POLICJA_PID"
 
-echo "[start.sh] FIFO dla boat1 i boat2 gotowe. Rozpoczynam uruchamianie pasażerów..."
-
-while true
-do
-  ./pasazer &
-  sleep 3
+echo "Generowanie pasażerów (naciśnij Ctrl+C, aby zatrzymać)..."
+while true; do
+    ./pasazer &
+    sleep 2
 done

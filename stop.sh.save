@@ -1,0 +1,47 @@
+
+# Zatrzymanie procesów
+stop_all_processes() {
+    echo "Zatrzymuję procesy i usuwam zasoby IPC..."
+
+    definitive_stop_process "nowyczas" "nowyczas.pid"
+    definitive_stop_process "kasjer" "kasjer.pid"
+    definitive_stop_process "pomost" "pomost.pid"
+    definitive_stop_process "statek" "statek.pid"
+
+    # Zatrzymanie procesów pasażerów
+    echo "Zatrzymuję procesy pasażerów..."
+    pkill -f ./pasazer 2>/dev/null
+    pkill -f ./pasazerowie 2>/dev/null
+
+    # Sprawdzenie i wymuszenie zakończenia procesów korzystających z FIFO
+    echo "Sprawdzanie procesów korzystających z FIFO..."
+    lsof | grep fifo_boat | awk '{print $2}' | while read pid; do
+        echo "Zatrzymuję proces (PID: $pid) korzystający z FIFO..."
+        kill -9 "$pid" 2>/dev/null
+    done
+
+    # Usuwanie segmentów pamięci współdzielonej
+    echo "Usuwam segmenty pamięci współdzielonej..."
+    ipcs -m | grep $(whoami) | awk '{print $2}' | while read shmid; do
+        ipcrm -m "$shmid" 2>/dev/null
+    done
+
+    # Usuwanie kolejek komunikatów
+    echo "Usuwam kolejki komunikatów..."
+    ipcs -q | grep $(whoami) | awk '{print $2}' | while read msqid; do
+        ipcrm -q "$msqid" 2>/dev/null
+    done
+
+    # Usuwanie plików FIFO
+    echo "Usuwam pliki FIFO..."
+    rm -f fifo_boat1 fifo_boat2
+
+    # Usuwanie wszystkich zasobów IPC bez informacji zwrotnej
+    echo "Usuwam pozostałe zasoby IPC..."
+    ipcrm -a 2>/dev/null
+
+    # Potwierdzenie zakończenia
+    echo "Wszystkie procesy i zasoby IPC zostały usunięte."
+}
+
+stop_all_processes

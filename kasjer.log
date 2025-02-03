@@ -1,11 +1,32 @@
-Kasjer uruchomiony. Oczekuję na pasażerów.
-[06:00:00] Kasjer: PID:2183495 wiek:59 statek:1
-[06:00:00] Kasjer: Brak miejsc dla grupy PID:2183495,2183497
-[06:03:00] Kasjer: PID:2183498 wiek:53 statek:1
-[06:03:00] Kasjer: Brak miejsc dla grupy PID:2183498,2183500
-[06:06:00] Kasjer: PID:2183504 wiek:59 statek:1
-[06:09:00] Kasjer: PID:2183509 wiek:43 statek:1
-[06:12:00] Kasjer: PID:2183511 wiek:18 statek:1
-[06:12:00] Kasjer: Brak miejsc dla grupy PID:2183511,2183513
-[06:15:00] Kasjer: PID:2183514 wiek:27 statek:1
-[06:18:00] Kasjer: PID:2183516 wiek:42 statek:1
+[kasjer] Thu Jan 30 13:54:41 2025
+ - Kasjer uruchomiony, gotowy do sprzedaży biletów.
+[kasjer] Thu Jan 30 13:54:46 2025
+ - Otrzymano zgłoszenie: 
+[kasjer] Thu Jan 30 13:54:46 2025
+ - Pasażer o PID 2106819 prosi o bilet
+[kasjer] Thu Jan 30 13:54:46 2025
+ - Pasażer przyjęty na statek 2, zapłacił 10 zł. Miejsca: 14.
+[kasjer] Thu Jan 30 13:54:48 2025
+ - Otrzymano zgłoszenie: 
+[kasjer] Thu Jan 30 13:54:48 2025
+ - Pasażer o PID 2106843 prosi o bilet
+[kasjer] Thu Jan 30 13:54:48 2025
+ - Pasażer przyjęty na statek 2, zapłacił 10 zł. Miejsca: 13.
+[kasjer] Thu Jan 30 13:54:50 2025
+ - Otrzymano zgłoszenie: 
+[kasjer] Thu Jan 30 13:54:50 2025
+ - Pasażer o PID 2106857 prosi o bilet
+[kasjer] Thu Jan 30 13:54:50 2025
+ - Pasażer przyjęty na statek 2, zapłacił 10 zł. Miejsca: 12.
+[kasjer] Thu Jan 30 13:54:52 2025
+ - Otrzymano zgłoszenie: 
+[kasjer] Thu Jan 30 13:54:52 2025
+ - Pasażer o PID 2106866 prosi o bilet
+[kasjer] Thu Jan 30 13:54:52 2025
+ - Pasażer przyjęty na statek 2, zapłacił 10 zł. Miejsca: 11.
+[kasjer] Thu Jan 30 13:54:54 2025
+ - Otrzymano zgłoszenie: 
+[kasjer] Thu Jan 30 13:54:54 2025
+ - Pasażer o PID 2106876 prosi o bilet
+[kasjer] Thu Jan 30 13:54:54 2025
+ - Pasażer przyjęty na statek 2, zapłacił 10 zł. Miejsca: 10.

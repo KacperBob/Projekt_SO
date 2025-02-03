@@ -1,0 +1,153 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/ipc.h>
+#include <sys/msg.h>
+#include <sys/shm.h>
+#include <time.h>
+#include <unistd.h>
+#include <string.h>
+
+#define SHM_KEY 0x1234
+#define MSGQ_KEY 0x5678
+
+typedef struct {
+    int Tp;     // Godzina rozpoczęcia
+    int Tk;     // Godzina zamknięcia
+    int N1;     // Pojemność łodzi 1
+    int N2;     // Pojemność łodzi 2
+    int K;      // Pojemność pomostu
+    int T1;     // Czas rejsu łodzi 1
+    int T2;     // Czas rejsu łodzi 2
+} SharedData;
+
+typedef struct {
+    long mtype;
+    int ages[2];
+    int group_size;
+    int repeat;
+    pid_t pid;
+} TicketRequest;
+
+typedef struct {
+    long mtype;
+    int allowed;
+    int boat;
+} TicketResponse;
+
+void log_action(const char* msg) {
+    time_t now = time(NULL);
+    struct tm *t = localtime(&now);
+    printf("[KASJER %02d:%02d:%02d] %s\n", 
+           t->tm_hour, t->tm_min, t->tm_sec, msg);
+}
+
+int main() {
+    log_action("Inicjalizacja kasjera");
+    
+    // Podłącz pamięć współdzieloną
+    int shmid = shmget(SHM_KEY, sizeof(SharedData), 0666);
+    if(shmid == -1) {
+        perror("shmget");
+        exit(1);
+    }
+    
+    SharedData *data = (SharedData*)shmat(shmid, NULL, 0);
+    if(data == (void*)-1) {
+        perror("shmat");
+        exit(1);
+    }
+
+    // Kolejka komunikatów
+    int msgqid = msgget(MSGQ_KEY, 0666);
+    if(msgqid == -1) {
+        perror("msgget");
+        exit(1);
+    }
+
+    int total_income = 0;
+    log_action("Gotowy do sprzedaży biletów");
+
+    while(1) {
+        TicketRequest req;
+        if(msgrcv(msgqid, &req, sizeof(req)-sizeof(long), 1, 0) == -1) {
+            perror("msgrcv");
+            continue;
+        }
+
+        int allowed = 1;
+        int boat = 1;
+        int price = 0;
+        char log_msg[256];
+
+        // Sprawdź reguły dla grupy
+        for(int i=0; i<req.group_size; i++) {
+            int age = req.ages[i];
+            
+            if(age < 3) {
+                // Bilet darmowy
+                continue;
+            }
+            
+            if(age < 15) {
+                boat = 2;
+                // Sprawdź obecność dorosłego
+                int has_adult = 0;
+                for(int j=0; j<req.group_size; j++) {
+                    if(req.ages[j] >= 18) {
+                        has_adult = 1;
+                        break;
+                    }
+                }
+                if(!has_adult) {
+                    allowed = 0;
+                    snprintf(log_msg, sizeof(log_msg), 
+                            "ODMOWA: Dziecko %d lat bez opiekuna (PID: %d)", 
+                            age, req.pid);
+                    log_action(log_msg);
+                    break;
+                }
+            }
+            
+            if(age > 70) {
+                boat = 2;
+            }
+        }
+
+        if(allowed) {
+            // Oblicz cenę
+            for(int i=0; i<req.group_size; i++) {
+                if(req.ages[i] >= 3) {
+                    price += req.repeat ? 5 : 10; // 50% zniżki dla powtórek
+                }
+            }
+            total_income += price;
+
+            snprintf(log_msg, sizeof(log_msg),
+                    "Sprzedaż biletu: %d zł (Grupa: %d osób, Łódź: %d, PID: %d)",
+                    price, req.group_size, boat, req.pid);
+            log_action(log_msg);
+        }
+
+        // Wyślij odpowiedź
+        TicketResponse resp = {
+            .mtype = req.pid,
+            .allowed = allowed,
+            .boat = boat
+        };
+        
+        if(msgsnd(msgqid, &resp, sizeof(resp)-sizeof(long), 0) == -1) {
+            perror("msgsnd");
+        }
+
+        // Logowanie przychodów co 10 transakcji
+        static int counter = 0;
+        if(++counter % 10 == 0) {
+            snprintf(log_msg, sizeof(log_msg),
+                    "Przychód łącznie: %d zł", total_income);
+            log_action(log_msg);
+        }
+    }
+
+    shmdt(data);
+    return 0;
+}

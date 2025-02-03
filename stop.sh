@@ -1,72 +1,53 @@
 #!/bin/bash
 
-# Funkcja zatrzymywania procesu
-definitive_stop_process() {
-    local process_name=$1
-    local pid_file=$2
+echo "Zatrzymywanie procesów..."
 
-    if [ -f "$pid_file" ]; then
-        PID=$(cat "$pid_file")
-        if kill -0 "$PID" 2>/dev/null; then
-            echo "Zatrzymuję $process_name (PID: $PID)..."
-            kill -15 "$PID" 2>/dev/null
-            sleep 2
-            if kill -0 "$PID" 2>/dev/null; then
-                echo "$process_name nie zakończył się po SIGTERM, wymuszam SIGKILL..."
-                kill -9 "$PID" 2>/dev/null
-            fi
-        else
-            echo "Proces $process_name już nie działa."
-        fi
-        rm -f "$pid_file"
-    else
-        echo "Brak pliku PID dla procesu $process_name."
-    fi
-}
+# Używamy pkill -9 (SIGKILL) aby na pewno zabić procesy
+pkill -9 pasazer
+pkill -9 kasjer
+pkill -9 pomost
+pkill -9 statek
+pkill -9 sternik
+pkill -9 policja
 
-# Zatrzymanie procesów
-stop_all_processes() {
-    echo "Zatrzymuję procesy i usuwam zasoby IPC..."
+sleep 1
 
-    definitive_stop_process "nowyczas" "nowyczas.pid"
-    definitive_stop_process "kasjer" "kasjer.pid"
-    definitive_stop_process "pomost" "pomost.pid"
-    definitive_stop_process "statek" "statek.pid"
+echo "Usuwanie zasobów IPC..."
 
-    # Zatrzymanie procesów pasażerów
-    echo "Zatrzymuję procesy pasażerów..."
-    pkill -f ./pasazer 2>/dev/null
-    pkill -f ./pasazerowie 2>/dev/null
+TICKET_KEY=1234
+BOARDING_KEY=5678
+DEPART_KEY=9012
+SHM_KEY=2345
 
-    # Sprawdzenie i wymuszenie zakończenia procesów korzystających z FIFO
-    echo "Sprawdzanie procesów korzystających z FIFO..."
-    lsof | grep fifo_boat | awk '{print $2}' | while read pid; do
-        echo "Zatrzymuję proces (PID: $pid) korzystający z FIFO..."
-        kill -9 "$pid" 2>/dev/null
-    done
+# Usuwanie kolejki ticket
+TICKET_Q=$(ipcs -q | awk -v key=$(printf "0x%x" $TICKET_KEY) '$1==key {print $2}')
+if [ ! -z "$TICKET_Q" ]; then
+    ipcrm -q $TICKET_Q
+    echo "Usunięto kolejkę ticket (id: $TICKET_Q)"
+fi
 
-    # Usuwanie segmentów pamięci współdzielonej
-    echo "Usuwam segmenty pamięci współdzielonej..."
-    ipcs -m | grep $(whoami) | awk '{print $2}' | while read shmid; do
-        ipcrm -m "$shmid" 2>/dev/null
-    done
+# Usuwanie kolejki boarding
+BOARDING_Q=$(ipcs -q | awk -v key=$(printf "0x%x" $BOARDING_KEY) '$1==key {print $2}')
+if [ ! -z "$BOARDING_Q" ]; then
+    ipcrm -q $BOARDING_Q
+    echo "Usunięto kolejkę boarding (id: $BOARDING_Q)"
+fi
 
-    # Usuwanie kolejek komunikatów
-    echo "Usuwam kolejki komunikatów..."
-    ipcs -q | grep $(whoami) | awk '{print $2}' | while read msqid; do
-        ipcrm -q "$msqid" 2>/dev/null
-    done
+# Usuwanie kolejki depart
+DEPART_Q=$(ipcs -q | awk -v key=$(printf "0x%x" $DEPART_KEY) '$1==key {print $2}')
+if [ ! -z "$DEPART_Q" ]; then
+    ipcrm -q $DEPART_Q
+    echo "Usunięto kolejkę depart (id: $DEPART_Q)"
+fi
 
-    # Usuwanie plików FIFO
-    echo "Usuwam pliki FIFO..."
-    rm -f fifo_boat1 fifo_boat2
+# Usuwanie pamięci dzielonej
+SHM_ID=$(ipcs -m | awk -v key=$(printf "0x%x" $SHM_KEY) '$1==key {print $2}')
+if [ ! -z "$SHM_ID" ]; then
+    ipcrm -m $SHM_ID
+    echo "Usunięto pamięć dzieloną (id: $SHM_ID)"
+fi
 
-    # Usuwanie wszystkich zasobów IPC bez informacji zwrotnej
-    echo "Usuwam pozostałe zasoby IPC..."
-    ipcrm -a 2>/dev/null
+# Dodatkowo wykonaj polecenie ipcrm -a, bez wyświetlania komunikatów
+ipcrm -a > /dev/null 2>&1
 
-    # Potwierdzenie zakończenia
-    echo "Wszystkie procesy i zasoby IPC zostały usunięte."
-}
-
-stop_all_processes
+echo "Stop zakończony."
