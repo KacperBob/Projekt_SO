@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo "Czyszczenie starych zasobów IPC..."
-# Usuwamy kolejki i pamięć dzieloną, jeśli istnieją
+# Usuwamy kolejki i segmenty pamięci, jeśli istnieją
 TICKET_KEY=1234
 BOARDING_KEY=5678
 DEPART_KEY=9012
@@ -32,7 +32,9 @@ gcc -o pasazer pasazer.c -lrt -lpthread
 gcc -o kasjer kasjer.c -lrt -lpthread
 gcc -o pomost pomost.c -lrt -lpthread
 gcc -o statek statek.c -lrt -lpthread
+gcc -o sternik sternik.c -lrt -lpthread
 gcc -o policja policja.c -lrt -lpthread
+gcc -o manager_pasazerow manager_pasazerow.c -lrt -lpthread
 
 echo "Inicjalizacja IPC i uruchamianie procesów..."
 
@@ -40,14 +42,16 @@ echo "Inicjalizacja IPC i uruchamianie procesów..."
 KASJER_PID=$!
 ./pomost &
 POMOST_PID=$!
-./sternik &   # (sternik.c – wersja niezmieniona z wcześniejszych odpowiedzi)
+./sternik &
 STERNIK_PID=$!
 ./statek 1 &
 STATEK1_PID=$!
 ./statek 2 &
 STATEK2_PID=$!
 ./policja $STATEK1_PID $STATEK2_PID &
-POLICJA_PID=$!
+POLICIA_PID=$!
+./manager_pasazerow &
+MANAGER_PID=$!
 
 echo "Uruchomiono procesy:"
 echo "kasjer: $KASJER_PID"
@@ -55,7 +59,8 @@ echo "pomost: $POMOST_PID"
 echo "sternik: $STERNIK_PID"
 echo "statek 1: $STATEK1_PID"
 echo "statek 2: $STATEK2_PID"
-echo "policja: $POLICJA_PID"
+echo "policja: $POLICIA_PID"
+echo "manager_pasazerow: $MANAGER_PID"
 
 echo "Generowanie pasażerów (naciśnij Ctrl+C, aby zatrzymać)..."
 while true; do
