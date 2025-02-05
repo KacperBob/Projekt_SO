@@ -3,6 +3,7 @@
 #include <sys/msg.h>
 #include <sys/shm.h>
 #include <unistd.h>
+#include <semaphore.h>
 #include "common.h"
 
 int main() {
@@ -22,6 +23,21 @@ int main() {
         perror("shmat (boats) w kasjer");
         exit(EXIT_FAILURE);
     }
+    if(boats->initialized != 1) {
+        boats->occupancy_boat1 = 0;
+        boats->occupancy_boat2 = 0;
+        boats->boat1_boarding_open = 1;
+        boats->boat2_boarding_open = 1;
+        boats->boat1_in_trip = 0;
+        boats->boat2_in_trip = 0;
+        boats->boat1_start_time = 0;
+        boats->boat2_start_time = 0;
+        if(sem_init(&boats->occupancy_sem, 1, 1) == -1) {
+            perror("sem_init w kasjer");
+            exit(EXIT_FAILURE);
+        }
+        boats->initialized = 1;
+    }
     
     while(1) {
         ticket_request_msg req;
@@ -31,18 +47,15 @@ int main() {
         }
         
         int boat_assigned, price;
-        /* Jeśli pasażer przychodzi z opiekunem, to zawsze trafia na statek nr 2. */
         if(req.with_guardian == 1) {
             boat_assigned = 2;
             price = 10;
         } else {
-            /* Pasażer samodzielny (pierwszy rejs) trafia na statek nr 1. */
             boat_assigned = 1;
             price = 10;
         }
-        if(req.second_trip == 1) {
+        if(req.second_trip == 1)
             price /= 2;
-        }
         
         printf("[Kasjer] Obsłużył Pasażera: %d%s, Wiek: %d, Zapłacił: %d, wysłał go na statek nr %d (DRUGI REJS: %s).\n",
                req.pid,

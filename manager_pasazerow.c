@@ -7,14 +7,13 @@ int main(void) {
     int status;
     pid_t pid;
     
-    // Nieskończona pętla, która co sekundę reapuje zakończone procesy
     while (1) {
-        // waitpid(-1, ...) oznacza, że czekamy na dowolne zakończone dziecko
         while ((pid = waitpid(-1, &status, WNOHANG)) > 0) {
-            // Opcjonalnie: można wyświetlić informacje o zbitym dziecku
-            // printf("Menedżer pasażerów: zbito proces o PID: %d\n", pid);
+            /* Opcjonalnie: można wypisywać, że proces został zreapowany:
+            printf("Manager: zreapowany proces PID %d\n", pid);
+            */
         }
-        sleep(1);  // czekamy sekundę przed kolejną iteracją
+        sleep(1);
     }
     return 0;
 }

@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <signal.h>
 #include <time.h>
+#include <semaphore.h>
 #include "common.h"
 
 volatile sig_atomic_t cancel_trip = 0;
@@ -25,30 +26,33 @@ int main(int argc, char *argv[]) {
     
     int msq_depart = msgget(MSG_KEY_DEPART, 0666 | IPC_CREAT);
     if(msq_depart == -1) {
-        perror("msgget (depart) w statek");
+        perror("msgget (depart) in statek");
         exit(EXIT_FAILURE);
     }
     
     int shmid = shmget(SHM_KEY_BOATS, sizeof(boats_shm_t), 0666 | IPC_CREAT);
     if(shmid == -1) {
-        perror("shmget (boats) w statek");
+        perror("shmget (boats) in statek");
         exit(EXIT_FAILURE);
     }
     boats_shm_t *boats = (boats_shm_t *) shmat(shmid, NULL, 0);
     if(boats == (void *) -1) {
-        perror("shmat (boats) w statek");
+        perror("shmat (boats) in statek");
         exit(EXIT_FAILURE);
     }
     
+    srand(time(NULL) ^ getpid());
+    
     while(1) {
         depart_msg dmsg;
-        if(msgrcv(msq_depart, &dmsg, sizeof(dmsg)-sizeof(long), boat_number, 0) == -1) {
-            perror("msgrcv (depart) w statek");
+        if(msgrcv(msq_depart, &dmsg, sizeof(dmsg) - sizeof(long), boat_number, 0) == -1) {
+            perror("msgrcv (depart) in statek");
             continue;
         }
         
         if(cancel_trip) {
-            printf("[Statek] Odebrano sygnał od Policji – statek %d nie wypływa, pasażerowie opuszczają statek.\n", boat_number);
+            printf("[Statek] Odebrano sygnał od Policji – statek %d nie wypływa, pasażerowie opuszczają łódź.\n", boat_number);
+            sem_wait(&boats->occupancy_sem);
             if(boat_number == 1) {
                 boats->occupancy_boat1 = 0;
                 boats->boat1_boarding_open = 1;
@@ -60,50 +64,62 @@ int main(int argc, char *argv[]) {
                 boats->boat2_in_trip = 0;
                 boats->boat2_start_time = 0;
             }
+            sem_post(&boats->occupancy_sem);
             cancel_trip = 0;
             continue;
         }
         
-        int occupancy = (boat_number == 1) ? boats->occupancy_boat1 : boats->occupancy_boat2;
-        printf("[Statek] Odpływa statek nr %d z %d pasażerami.\n", boat_number, occupancy);
-        
-        sleep(trip_duration);  /* Symulacja rejsu */
-        
-        /* Przed resetowaniem, zapamiętujemy liczbę pasażerów na statku */
-        int num_passengers = occupancy;
-        
-        /* Resetujemy stan statku */
+        /* Zabezpieczamy dostęp do occupancy */
+        sem_wait(&boats->occupancy_sem);
         if(boat_number == 1) {
-            boats->occupancy_boat1 = 0;
-            boats->boat1_boarding_open = 1;
-            boats->boat1_in_trip = 0;
-            boats->boat1_start_time = 0;
+            boats->boat1_in_trip = 1;
+            boats->boat1_boarding_open = 0;
         } else {
-            boats->occupancy_boat2 = 0;
-            boats->boat2_boarding_open = 1;
-            boats->boat2_in_trip = 0;
-            boats->boat2_start_time = 0;
+            boats->boat2_in_trip = 1;
+            boats->boat2_boarding_open = 0;
         }
+        int occupancy = (boat_number == 1) ? boats->occupancy_boat1 : boats->occupancy_boat2;
+        sem_post(&boats->occupancy_sem);
+        
+        printf("[Statek] Odpływa statek nr %d z %d pasażerami.\n", boat_number, occupancy);
+        sleep(trip_duration);
+        
+        /* Po rejsie wysyłamy komunikat "trip complete" do każdego pasażera */
+        sem_wait(&boats->occupancy_sem);
+        int msq_trip = msgget(MSG_KEY_TRIP, 0666 | IPC_CREAT);
+        if(msq_trip == -1) {
+            perror("msgget (trip complete) in statek");
+        } else {
+            if(boat_number == 1) {
+                for (int i = 0; i < boats->occupancy_boat1; i++) {
+                    trip_complete_msg tmsg;
+                    tmsg.mtype = boats->boat1_pids[i];
+                    if(msgsnd(msq_trip, &tmsg, sizeof(tmsg) - sizeof(long), 0) == -1) {
+                        perror("msgsnd (trip complete) in statek");
+                    }
+                }
+                boats->occupancy_boat1 = 0;
+                boats->boat1_boarding_open = 1;
+                boats->boat1_in_trip = 0;
+                boats->boat1_start_time = 0;
+            } else {
+                for (int i = 0; i < boats->occupancy_boat2; i++) {
+                    trip_complete_msg tmsg;
+                    tmsg.mtype = boats->boat2_pids[i];
+                    if(msgsnd(msq_trip, &tmsg, sizeof(tmsg) - sizeof(long), 0) == -1) {
+                        perror("msgsnd (trip complete) in statek");
+                    }
+                }
+                boats->occupancy_boat2 = 0;
+                boats->boat2_boarding_open = 1;
+                boats->boat2_in_trip = 0;
+                boats->boat2_start_time = 0;
+            }
+        }
+        sem_post(&boats->occupancy_sem);
         
         printf("[Statek] Statek nr %d przybył. Wszystkie miejsca są teraz wolne (%d miejsc dostępnych).\n",
                boat_number, (boat_number == 1) ? BOAT1_CAPACITY : BOAT2_CAPACITY);
-        
-        /* Dla każdego pasażera, który był na pokładzie, z 3% szansą uruchamiamy proces powracającego pasażera */
-        for (int i = 0; i < num_passengers; i++) {
-            if (rand() % 100 < 3) {  /* 3% szans */
-                pid_t pid = fork();
-                if (pid < 0) {
-                    perror("fork (second trip)");
-                } else if (pid == 0) {
-                    printf("[Statek] Pasażer %d chce płynąć drugi raz.\n", getpid());
-                    fflush(stdout);
-                    /* Uruchamiamy nowy proces pasazer z argumentem "second" */
-                    execl("./pasazer", "pasazer", "second", NULL);
-                    perror("execl (pasazer second)");
-                    exit(EXIT_FAILURE);
-                }
-            }
-        }
     }
     
     shmdt(boats);

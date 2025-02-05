@@ -6,28 +6,33 @@
 #include <time.h>
 
 /* Parametry symulacji */
-#define BOAT1_CAPACITY 7    // statek nr 1: 7 miejsc
-#define BOAT2_CAPACITY 4    // statek nr 2: 4 miejsc
-#define POMOST_CAPACITY 2
-#define T1 10   // czas rejsu statku 1 (sekundy)
-#define T2 15   // czas rejsu statku 2 (sekundy)
-#define MAX_WAIT 10  // maksymalny czas oczekiwania na zebranie pasażerów (sekundy)
-#define SIMULATION_DURATION 60  // czas symulacji (dla policji)
+#define BOAT1_CAPACITY 7    // Statek nr 1: 7 miejsc
+#define BOAT2_CAPACITY 4    // Statek nr 2: 4 miejsca
+#define POMOST_CAPACITY 2   // Pojemność molo
+#define T1 10   // Czas rejsu statku 1 (sekundy)
+#define T2 15   // Czas rejsu statku 2 (sekundy)
+#define MAX_WAIT 10  // Maksymalny czas oczekiwania na załadunek (sekundy)
 
 /* Klucze IPC */
 #define MSG_KEY_TICKET 1234
 #define MSG_KEY_BOARDING 5678
 #define MSG_KEY_DEPART 9012
 #define SHM_KEY_BOATS 2345
+#define MSG_KEY_TRIP 3456  /* Nowy klucz kolejki dla komunikatów potwierdzających zakończenie rejsu */
+
+/* Typ komunikatu potwierdzającego zakończenie rejsu */
+typedef struct {
+    long mtype;  /* Ustawiany na pid pasażera */
+} trip_complete_msg;
 
 /* Struktury komunikatów */
 
 /* Żądanie biletu – pasażer → kasjer */
 typedef struct {
-    long mtype;           // ustawiamy na 1
+    long mtype;           // Ustawiamy na 1
     pid_t pid;
     int age;
-    int second_trip;      // 0 lub 1; 1 = pasażer wraca (drugie wejście)
+    int second_trip;      // 0 lub 1 – 1 = powracający (drugi rejs)
     int with_guardian;    // 0 lub 1 – 1, gdy pasażer pojawia się z opiekunem
 } ticket_request_msg;
 
@@ -40,11 +45,10 @@ typedef struct {
 
 /* Żądanie wejścia na pokład – pasażer → pomost */
 typedef struct {
-    /* mtype = 1 dla standardowych, mtype = 2 dla powracających (omijających kolejkę) */
-    long mtype;
+    long mtype;           // mtype = 1 dla zwykłych, 2 dla powracających (omijających kolejkę)
     pid_t pid;
     int boat;             // numer statku przydzielony przez kasjera
-    int with_guardian;    // informacja, czy pasażer przychodzi z opiekunem
+    int with_guardian;
 } boarding_request_msg;
 
 /* Komunikat odpłynięcia – sternik → statek (mtype = numer statku) */
@@ -60,8 +64,12 @@ typedef struct {
     int boat2_boarding_open;  // 1 = otwarty, 0 = zamknięty
     int boat1_in_trip;        // 0 = nie w rejsie, 1 = w rejsie
     int boat2_in_trip;
-    time_t boat1_start_time;  // czas wejścia pierwszego pasażera na statek 1
-    time_t boat2_start_time;  // analogicznie dla statku 2
+    time_t boat1_start_time;
+    time_t boat2_start_time;
+    int initialized;          // 0 = nie, 1 = tak
+    sem_t occupancy_sem;      // semafor do synchronizacji dostępu do occupancy
+    pid_t boat1_pids[BOAT1_CAPACITY];  // identyfikatory pasażerów dla statku 1
+    pid_t boat2_pids[BOAT2_CAPACITY];  // identyfikatory pasażerów dla statku 2
 } boats_shm_t;
 
 #endif
