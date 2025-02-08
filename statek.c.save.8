@@ -1,0 +1,187 @@
+#include <stdlib.h>         // Funkcje ogólne, m.in. exit, atoi, srand, rand
+#include <sys/msg.h>        // Funkcje związane z kolejkami komunikatów IPC (msgget, msgrcv, msgsnd)
+#include <sys/shm.h>        // Funkcje związane z pamięcią dzieloną (shmget, shmat, shmdt)
+#include <unistd.h>         // Funkcje systemowe (sleep, getpid)
+#include <signal.h>         // Obsługa sygnałów (signal)
+#include <time.h>           // Funkcje czasu (time)
+#include <semaphore.h>      // Obsługa semaforów POSIX (sem_wait, sem_post)
+#include "common.h"         // Definicje stałych, struktur komunikatów i pamięci dzielonej
+
+// Zmienna globalna do bezpiecznego przekazywania informacji o przerwaniu rejsu
+volatile sig_atomic_t cancel_trip = 0;
+
+// Funkcja obsługi sygnału – ustawiana przy odebraniu sygnału
+void sig_handler(int signo) { 
+    cancel_trip = 1; 
+}
+
+int main(int argc, char *argv[]) {
+    // Sprawdzamy poprawność liczby argumentów. Program oczekuje jednego argumentu – numeru statku.
+    if(argc != 2) {
+        fprintf(stderr, "Usage: %s <boat_number>\n", argv[0]);
+        exit(EXIT_FAILURE);
+    }
+    
+    // Konwersja argumentu na numer statku (oczekiwane wartości: 1 lub 2)
+    int boat_number = atoi(argv[1]);
+    
+    // Ustalenie czasu trwania rejsu: dla statku 1 używamy czasu T1, dla statku 2 T2.
+    int trip_duration = (boat_number == 1) ? T1 : T2;
+    
+    // Ustawienie obsługi sygnału: dla statku 1 ustawiamy obsługę SIGUSR1,
+    // dla statku 2 – SIGUSR2. Sygnały te umożliwiają zewnętrzne przerwanie rejsu (np. przez Policję).
+    if(boat_number == 1)
+        signal(SIGUSR1, sig_handler);
+    else if(boat_number == 2)
+        signal(SIGUSR2, sig_handler);
+    
+    // Uzyskujemy dostęp do kolejki komunikatów o kluczu MSG_KEY_DEPART,
+    // która służy do odbierania komunikatów "depart" wysyłanych przez sternika.
+    int msq_depart = msgget(MSG_KEY_DEPART, 0666 | IPC_CREAT);
+    if(msq_depart == -1) {
+        perror("msgget (depart) in statek");
+        exit(EXIT_FAILURE);
+    }
+    
+    // Uzyskujemy segment pamięci dzielonej o kluczu SHM_KEY_BOATS, który przechowuje
+    // strukturę boats_shm_t zawierającą stan statków (np. liczba pasażerów, flagi boarding itp.)
+    int shmid = shmget(SHM_KEY_BOATS, sizeof(boats_shm_t), 0666 | IPC_CREAT);
+    if(shmid == -1) {
+        perror("shmget (boats) in statek");
+        exit(EXIT_FAILURE);
+    }
+    boats_shm_t *boats = (boats_shm_t *) shmat(shmid, NULL, 0);
+    if(boats == (void *) -1) {
+        perror("shmat (boats) in statek");
+        exit(EXIT_FAILURE);
+    }
+    
+    // Inicjalizacja generatora liczb losowych (używamy bieżącego czasu i PID, aby zapewnić losowość)
+    srand(time(NULL) ^ getpid());
+
+    /* --- Dodana logika informująca, że statek właśnie wrócił z rejsu --- */
+    /* Przed wejściem do głównej pętli resetujemy stan statku i wypisujemy komunikat o powrocie */
+    sem_wait(&boats->occupancy_sem);  // Blokujemy semafor, aby mieć wyłączny dostęp do stanu
+    if(boat_number == 1) {
+        // Resetujemy stan statku nr 1
+        boats->occupancy_boat1 = 0;
+        boats->boat1_boarding_open = 1;
+        boats->boat1_in_trip = 0;
+        boats->boat1_start_time = 0;
+        // Wypisujemy komunikat, że statek nr 1 właśnie wrócił z rejsu
+        printf("[Statek] Statek nr 1 właśnie wrócił z rejsu. Wszystkie miejsca są teraz wolne (%d miejsc dostępnych).\n", BOAT1_CAPACITY);
+    } else {
+        // Resetujemy stan statku nr 2
+        boats->occupancy_boat2 = 0;
+        boats->boat2_boarding_open = 1;
+        boats->boat2_in_trip = 0;
+        boats->boat2_start_time = 0;
+        // Wypisujemy komunikat, że statek nr 2 właśnie wrócił z rejsu
+        printf("[Statek] Statek nr 2 właśnie wrócił z rejsu. Wszystkie miejsca są teraz wolne (%d miejsc dostępnych).\n", BOAT2_CAPACITY);
+    }
+    sem_post(&boats->occupancy_sem);  // Odblokowujemy semafor
+    /* --- Koniec dodanej logiki --- */
+    
+    // Główna pętla symulacji działania statku
+    while(1) {
+        depart_msg dmsg;
+        // Odbieramy komunikat "depart" z kolejki msq_depart. Typ komunikatu jest równy numerowi statku.
+        if(msgrcv(msq_depart, &dmsg, sizeof(dmsg) - sizeof(long), boat_number, 0) == -1) {
+            perror("msgrcv (depart) in statek");
+            continue;  // W przypadku błędu odbioru komunikatu kontynuujemy pętlę
+        }
+        
+        // Sprawdzamy, czy została ustawiona flaga przerwania rejsu (cancel_trip)
+        if(cancel_trip) {
+            // Jeśli rejs ma zostać przerwany, wypisujemy komunikat informujący, że statek nie wypływa,
+            // a pasażerowie opuszczają łódź.
+            printf("[Statek] Odebrano sygnał od Policji – statek %d nie wypływa, pasażerowie opuszczają łódź.\n", boat_number);
+            sem_wait(&boats->occupancy_sem);  // Blokujemy semafor, aby mieć wyłączny dostęp do stanu statku
+            if(boat_number == 1) {
+                // Resetujemy stan statku nr 1
+                boats->occupancy_boat1 = 0;
+                boats->boat1_boarding_open = 1;
+                boats->boat1_in_trip = 0;
+                boats->boat1_start_time = 0;
+            } else {
+                // Resetujemy stan statku nr 2
+                boats->occupancy_boat2 = 0;
+                boats->boat2_boarding_open = 1;
+                boats->boat2_in_trip = 0;
+                boats->boat2_start_time = 0;
+            }
+            sem_post(&boats->occupancy_sem);  // Odblokowujemy semafor
+            cancel_trip = 0;  // Resetujemy flagę przerwania rejsu
+            continue;         // Przechodzimy do kolejnego cyklu pętli
+        }
+        
+        /* Zabezpieczamy dostęp do zmiennej occupancy (liczby pasażerów) przy użyciu semafora */
+        sem_wait(&boats->occupancy_sem);
+        if(boat_number == 1) {
+            // Ustawiamy flagę, że statek nr 1 jest w rejsie i zamykamy możliwość wejścia (boarding)
+            boats->boat1_in_trip = 1;
+            boats->boat1_boarding_open = 0;
+        } else {
+            // Analogicznie dla statku nr 2
+            boats->boat2_in_trip = 1;
+            boats->boat2_boarding_open = 0;
+        }
+        // Odczytujemy aktualną liczbę pasażerów przypisanych do statku
+        int occupancy = (boat_number == 1) ? boats->occupancy_boat1 : boats->occupancy_boat2;
+        sem_post(&boats->occupancy_sem);  // Odblokowujemy semafor
+        
+        // Wypisujemy komunikat o odpłynięciu statku wraz z informacją o liczbie pasażerów
+        printf("[Statek] Odpływa statek nr %d z %d pasażerami.\n", boat_number, occupancy);
+        // Symulujemy trwanie rejsu przez określony czas (trip_duration)
+        sleep(trip_duration);
+        
+        /* Po rejsie wysyłamy komunikat "trip complete" do każdego pasażera, który był na pokładzie.
+           Używamy do tego kolejki komunikatów o kluczu MSG_KEY_TRIP. */
+        sem_wait(&boats->occupancy_sem);  // Blokujemy semafor, aby mieć wyłączny dostęp do stanu
+        int msq_trip = msgget(MSG_KEY_TRIP, 0666 | IPC_CREAT);
+        if(msq_trip == -1) {
+            perror("msgget (trip complete) in statek");
+        } else {
+            if(boat_number == 1) {
+                // Dla statku nr 1 iterujemy po tablicy PIDów pasażerów zapisanych w boats->boat1_pids
+                for (int i = 0; i < boats->occupancy_boat1; i++) {
+                    trip_complete_msg tmsg;
+                    // Ustawiamy mtype komunikatu na PID danego pasażera – umożliwia to dostarczenie komunikatu właściwemu procesowi
+                    tmsg.mtype = boats->boat1_pids[i];
+                    if(msgsnd(msq_trip, &tmsg, sizeof(tmsg) - sizeof(long), 0) == -1) {
+                        perror("msgsnd (trip complete) in statek");
+                    }
+                }
+                // Resetujemy stan statku nr 1 po zakończonym rejsie
+                boats->occupancy_boat1 = 0;
+                boats->boat1_boarding_open = 1;
+                boats->boat1_in_trip = 0;
+                boats->boat1_start_time = 0;
+            } else {
+                // Analogicznie dla statku nr 2 – wysyłamy komunikaty "trip complete" do wszystkich pasażerów zapisanych w boats->boat2_pids
+                for (int i = 0; i < boats->occupancy_boat2; i++) {
+                    trip_complete_msg tmsg;
+                    tmsg.mtype = boats->boat2_pids[i];
+                    if(msgsnd(msq_trip, &tmsg, sizeof(tmsg) - sizeof(long), 0) == -1) {
+                        perror("msgsnd (trip complete) in statek");
+                    }
+                }
+                // Resetujemy stan statku nr 2 po zakończonym rejsie
+                boats->occupancy_boat2 = 0;
+                boats->boat2_boarding_open = 1;
+                boats->boat2_in_trip = 0;
+                boats->boat2_start_time = 0;
+            }
+        }
+        sem_post(&boats->occupancy_sem);  // Odblokowujemy semafor
+        
+        // Wypisujemy komunikat, że statek przybył do portu i wszystkie miejsca są wolne
+        printf("[Statek] Statek nr %d przybył. Wszystkie miejsca są teraz wolne (%d miejsc dostępnych).\n",
+               boat_number, (boat_number == 1) ? BOAT1_CAPACITY : BOAT2_CAPACITY);
+    }
+    
+    // Odłączamy segment pamięci dzielonej (teoretycznie nieosiągalne, gdyż pętla jest nieskończona)
+    shmdt(boats);
+    return 0;
+}
+

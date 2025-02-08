@@ -1,0 +1,159 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/msg.h>
+#include <unistd.h>
+#include <sys/wait.h>
+#include <time.h>
+#include "common.h"
+
+// Główna funkcja procesu pasażera.
+// Symuluje pojawienie się pasażera, wysłanie żądania biletu do kasjera,
+// odbiór biletu, wysłanie żądania wejścia na pokład (boarding request)
+// oraz, po zakończeniu rejsu, ponowne uruchomienie się procesu jako pasażer
+// chcący odbyć drugi rejs (w testach ustawione 100% szansy na drugi rejs).
+int main(int argc, char *argv[]) {
+    int is_second = 0;  // Flaga określająca, czy jest to drugi rejs pasażera
+
+    // Obsługa argumentów wywołania: brak argumentu oznacza pierwszy rejs,
+    // argument "second" oznacza, że jest to drugi rejs.
+    if(argc == 1) {
+        is_second = 0;  // Pierwszy rejs
+    } else if(argc == 2) {
+        if(strcmp(argv[1], "second") == 0)
+            is_second = 1;  // Drugi rejs
+        else {
+            fprintf(stderr, "Usage: %s [second]\n", argv[0]);
+            exit(EXIT_FAILURE);
+        }
+    } else {
+        fprintf(stderr, "Usage: %s [second]\n", argv[0]);
+        exit(EXIT_FAILURE);
+    }
+    
+    // Inicjalizacja generatora liczb losowych; wykorzystujemy bieżący czas XOR z identyfikatorem procesu.
+    srand(time(NULL) ^ getpid());
+    
+    // Łączenie się z kolejką komunikatów dla żądań biletowych.
+    int msq_ticket = msgget(MSG_KEY_TICKET, 0666);
+    if(msq_ticket == -1) {
+        perror("msgget (ticket)");
+        exit(EXIT_FAILURE);
+    }
+    
+    // Przygotowanie wiadomości żądania biletu.
+    ticket_request_msg req;
+    req.mtype = 1;         // Ustalony typ komunikatu dla żądań biletu.
+    req.pid = getpid();     // Ustawienie identyfikatora procesu pasażera.
+    // Losowanie wieku pasażera w przedziale [15, 69].
+    req.age = (rand() % (69 - 15 + 1)) + 15;
+    req.second_trip = is_second ? 1 : 0;  // Określenie, czy to drugi rejs.
+    if(!is_second)
+        // Dla pierwszego rejsu losowo decydujemy, czy pasażer przychodzi z opiekunem (50% szans).
+        req.with_guardian = (rand() % 2) ? 1 : 0;
+    else
+        req.with_guardian = 0;  // Dla drugiego rejsu nie ma opiekuna.
+    
+    // Informacja o pojawieniu się pasażera.
+    printf("[Pasażer] Wiek: %d, pid: %d. Pojawił się.%s\n",
+           req.age, req.pid, (is_second ? " (DRUGI REJS)" : ""));
+    
+    // Jeśli pasażer odbywa pierwszy rejs i ma opiekuna, tworzymy proces opiekuna.
+    if(!is_second && req.with_guardian == 1) {
+        // Ustawienie ignorowania sygnału SIGCHLD, aby nie powstawały procesy zombie.
+        signal(SIGCHLD, SIG_IGN);
+        pid_t child_pid = fork();
+        if(child_pid < 0) {
+            perror("fork (opiekun)");
+        } else if(child_pid == 0) {
+            // Proces dziecka – opiekun.
+            int dependent_age;
+            // Losujemy wiek opiekuna – albo dziecko poniżej 15 lat, albo osoba starsza (70–100 lat).
+            if(rand() % 2 == 0)
+                dependent_age = rand() % 15;
+            else
+                dependent_age = (rand() % (100 - 70 + 1)) + 70;
+            // Wyświetlamy informację o opiekunie.
+            printf("[Opiekun] Dependent: pid: %d, wiek: %d, towarzyszy pasażerowi: %d.\n",
+                   getpid(), dependent_age, getppid());
+            fflush(stdout);
+            exit(0);  // Opiekun kończy działanie po wyświetleniu komunikatu.
+        } else {
+            // Proces rodzica – pasażer – informujemy o pid opiekuna.
+            printf("[Pasażer] Jestem z opiekunem: pid potomnego: %d.\n", child_pid);
+        }
+    }
+    
+    // Wysyłamy żądanie biletu do procesu kasjera.
+    if(msgsnd(msq_ticket, &req, sizeof(req) - sizeof(long), 0) == -1) {
+        perror("msgsnd (ticket request)");
+        exit(EXIT_FAILURE);
+    }
+    
+    // Odbieramy odpowiedź biletu od kasjera.
+    ticket_response_msg resp;
+    if(msgrcv(msq_ticket, &resp, sizeof(resp) - sizeof(long), req.pid, 0) == -1) {
+        perror("msgrcv (ticket response)");
+        exit(EXIT_FAILURE);
+    }
+    // Wyświetlamy informację o otrzymanym bilecie: numer statku i cena biletu.
+    printf("[Pasażer] Odebrał bilet: Statek %d, Cena: %d.\n", resp.boat_assigned, resp.price);
+    
+    // Łączenie się z kolejką komunikatów dla żądań wejścia na pokład (boarding).
+    int msq_boarding = msgget(MSG_KEY_BOARDING, 0666);
+    if(msq_boarding == -1) {
+        perror("msgget (boarding)");
+        exit(EXIT_FAILURE);
+    }
+    
+    // Przygotowujemy wiadomość żądania wejścia na pokład.
+    boarding_request_msg board_req;
+    // Ustawiamy typ komunikatu: 2 dla pasażerów na drugi rejs (omijających kolejkę), w przeciwnym wypadku 1.
+    board_req.mtype = (req.second_trip == 1) ? 2 : 1;
+    board_req.pid = getpid();
+    board_req.boat = resp.boat_assigned;  // Numer statku, przydzielony przez kasjera.
+    board_req.with_guardian = req.with_guardian;
+    
+    // Symulacja krótkiego oczekiwania na wejście na pokład.
+    sleep(1);
+    
+    // Wysyłamy żądanie wejścia na pokład.
+    if(msgsnd(msq_boarding, &board_req, sizeof(board_req) - sizeof(long), 0) == -1) {
+        perror("msgsnd (boarding request)");
+        exit(EXIT_FAILURE);
+    }
+    
+    // Jeśli to pierwszy rejs, czekamy na komunikat "trip complete" (zakończenie rejsu) i podejmujemy decyzję o drugim rejsie.
+    if(!is_second) {
+        int msq_trip = msgget(MSG_KEY_TRIP, 0666 | IPC_CREAT);
+        if(msq_trip == -1) {
+            perror("msgget (trip complete)");
+            exit(EXIT_FAILURE);
+        }
+        trip_complete_msg trip_msg;
+        if(msgrcv(msq_trip, &trip_msg, sizeof(trip_msg) - sizeof(long), req.pid, 0) == -1) {
+            perror("msgrcv (trip complete)");
+            exit(EXIT_FAILURE);
+        }
+        // Informacja o zakończeniu rejsu.
+        printf("[Pasażer] Rejs zakończony, opuszczam łódź.\n");
+        
+        /* Ustawiamy 100% szansy na drugi rejs – dla celów testowych.
+           W rzeczywistości szansa na drugi rejs może być inna (np. losowana).
+           Tutaj zawsze podejmujemy decyzję o drugim rejsie. */
+        printf("[Pasażer] (Test) Zdecydowanie wybieram DRUGI REJS.\n");
+        // Uruchamiamy ponownie ten sam program w trybie "second" (drugi rejs).
+        execl("./pasazer", "pasazer", "second", NULL);
+        // Jeśli execl zwróci błąd, wypisujemy komunikat i kończymy działanie.
+        perror("execl (pasazer second)");
+        exit(EXIT_FAILURE);
+    } else {
+        // Dla drugiego rejsu czekamy przez czas trwania rejsu (T1 lub T2) plus dodatkowe 5 sekund.
+        int trip_time = (resp.boat_assigned == 1) ? T1 : T2;
+        sleep(trip_time + 5);
+        // Informacja o zakończeniu drugiego rejsu.
+        printf("[Pasażer] DRUGI rejs zakończony, opuszczam łódź.\n");
+    }
+    
+    return 0;
+}

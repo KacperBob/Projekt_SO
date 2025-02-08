@@ -1,30 +1,3 @@
-#include <stdio.h>        // Standardowe wejście/wyjście
-#include <stdlib.h>       // Funkcje ogólne (exit, itp.)
-#include <sys/msg.h>      // Obsługa kolejek komunikatów IPC
-#include <sys/shm.h>      // Obsługa pamięci dzielonej IPC
-#include <unistd.h>       // Funkcje systemowe, np. sleep(), getpid()
-#include <semaphore.h>    // Obsługa semaforów POSIX
-#include "common.h"       // Wspólne definicje i struktury używane przez wszystkie moduły
-
-int main() {
-    // Uzyskujemy identyfikator kolejki komunikatów dla żądań biletów.
-    int msq_ticket = msgget(MSG_KEY_TICKET, 0666 | IPC_CREAT);
-    if(msq_ticket == -1) {
-        perror("msgget (ticket) w kasjer"); // Wypisujemy błąd, jeśli nie udało się uzyskać kolejki
-        exit(EXIT_FAILURE);
-    }
-    
-    // Uzyskujemy identyfikator segmentu pamięci dzielonej przeznaczonej na strukturę statków.
-    int shmid = shmget(SHM_KEY_BOATS, sizeof(boats_shm_t), 0666 | IPC_CREAT);
-    if(shmid == -1) {
-        perror("shmget (boats) w kasjer");  // Błąd przy tworzeniu lub otwieraniu segmentu pamięci dzielonej
-        exit(EXIT_FAILURE);
-    }
-    // Przypisujemy wskaźnik do pamięci dzielonej z rzutowaniem na typ boats_shm_t.
-    boats_shm_t *boats = (boats_shm_t *) shmat(shmid, NULL, 0);
-    if(boats == (void *) -1) {
-        perror("shmat (boats) w kasjer");  // Błąd przy mapowaniu segmentu pamięci dzielonej
-        exit(EXIT_FAILURE);
     }
     
     // Inicjalizacja pamięci dzielonej (jeśli jeszcze nie została zainicjalizowana).
